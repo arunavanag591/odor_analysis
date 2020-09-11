@@ -1,2 +1,2 @@
 # odor_analysis
-This repository consist of the ROS setup for Odor Tracking experiment
+This repository consist of the data analysis done for Odor Tracking experiment
