@@ -1,4 +1,4 @@
-.vscode/*
+*.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -65,6 +65,7 @@ target/
 
 # IPython notebook
 .ipynb_checkpoints
+*/.ipynb_checkpoints/*
 
 # Repo scratch directory
 scratch/
