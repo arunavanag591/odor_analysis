@@ -16,13 +16,13 @@ Install Anaconda from <a href = "https://docs.anaconda.com/anaconda/install/linu
    ```
 2. Create the virtualenv:
 
-    ```bash
-   virtualenv -p /usr/bin/python3.x dataEnv  
+    ```
+   virtualenv -p /usr/bin/python3.6 dataEnv  
    ```
   
 3. Install Packages:
 
-   ```bash
+   ```
    pip install pandas
    pip install h5py
    pip install numpy
