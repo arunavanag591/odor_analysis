@@ -49,3 +49,9 @@ alias rosenv="source rosenv/bin/activate"
 alias start="venv && condaenv"
 alias stop="denv && dconda"
 ```
+
+### Convert Bag to CSV
+sample command:
+```
+rosrun rosbag_pandas bag_csv -b /home/ecc/data/dataOctober/OctoberDesertData/Run02/OctoberDesert1020_0.bag -i /analog_output /trisonica /ublox_gps/fix /clock -e /imu/* /rosout /rosout_* /tf /ublox_gps/fix_velocity /ublox_gps/rxmrtcm -o OctoberRun02Bag0.csv -v
+```
