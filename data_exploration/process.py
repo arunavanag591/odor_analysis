@@ -83,6 +83,7 @@ def puff_data(rowsize, colsize):
   # creating puff dataframe
   # going to copy to a new frame to keep this container separate as the for loop takes significant time to execute
 
+  # TODO: MAKE IT FASTER
   puff = pd.DataFrame(index=range(rowsize),columns=range(colsize))
   puffsize=pd.DataFrame()
 
