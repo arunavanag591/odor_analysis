@@ -79,29 +79,11 @@ def animate_wind_jpeg():   #animation using individual jpegs
       fig.savefig(dir + "plot" + str(i) + ".jpg")
       plt.close()
 
-def puff_data(rowsize, colsize):
-  # creating puff dataframe
-  # going to copy to a new frame to keep this container separate as the for loop takes significant time to execute
-
-  # TODO: MAKE IT FASTER
-  puff = pd.DataFrame(index=range(rowsize),columns=range(colsize))
-  puffsize=pd.DataFrame()
-
-  for i in range(0, len(puff.columns)):
-      puff[i]=puff.index
-
-  puff.columns = ['particle' + str(col) for col in puff.columns] #renaming for looping ease
-  puffsize[0] = puff.iloc[:,0] #copying the first columns of data
-
-  #shifting every column by the column-th number
-  for i in range(1, len(puff.columns)):
-      puffsize[i]=puff['particle' + str(i)].shift(periods=i)
-
-  puffsize=puffsize.fillna(0) #replacing NaN with zeroes
-  puffsize.columns = ['particle' + str(col) for col in puffsize.columns] #renaming columns names optional
-  puffsize= puffsize.astype(int)
-  puffsize.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/puff_size.hdf', key='puffsize', mode='w')
-  print('Finished generating Dataframe')
+def puff_radius(row,col):
+  if (row > col):
+      return (row - col)
+  else:
+      return (0)
   
 def odor_expectation_plot():
   ## finding encountered odor withing the calculated odor radius
@@ -140,13 +122,67 @@ def odor_expectation_plot():
   #       else:
   #           odor_expected.append(0)
 
+def create_frame(pos):
+  print('create frame starting')
+  windframe=pd.DataFrame(pos,columns=['particle{}'.format(x+1) for x in range(len(pos))])
+  print('Frame was created, Rearranging')
+  return rearrange_frame(windframe)
+
+def find_particle_position(windn):
+  #find wind paritcle position  
+  posu=[]
+  posv=[]
+  for i in range(len(windn.master_time)):
+      posu.append(integrate.cumtrapz(windn.U[i:],windn.master_time[i:], axis=0, initial = 0.0)) 
+      posv.append(integrate.cumtrapz(windn.V[i:],windn.master_time[i:], axis=0, initial = 0.0))
+  
+  print('Position arryas generated')
+  return posu, posv
+
+def rearrange_frame(windframe):
+  dfi = pd.DataFrame()
+  dfi['index']=windframe.index
+  westeast=windframe.T
+  westeast.set_index(dfi.index, inplace=True)
+  westeast.columns = ['particle' + str(col) for col in westeast.columns]
+  delta=pd.DataFrame()
+  delta[0] = westeast.iloc[:,0]
+  for i in range(1,len(westeast.columns)):
+      delta[i]=westeast['particle' + str(i)].shift(periods=i)
+
+  delta.columns = ['particle' + str(col) for col in delta.columns]
+  delta=delta.fillna(0)
+  print('Frame has be rearranged and returned for saving')
+  #delta.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
+  return delta
+
+
+def create_wind_position_frame():
+  windn=pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Interpolated.hdf')
+  windn_sync_time=windn.master_time-windn.master_time[0]
+  windn.insert(1,'sync_time',windn_sync_time)
+  
+  print('Calculating Particle Position')
+  #particle position - > returns a list of arrays
+  posu , posv = find_particle_position(windn)
+
+  print('Arranging list of arrays to dataframe')
+  #returns a rearranged frame for westeast and northsouth wind (x,y)
+  westeast = create_frame(posu)
+  #northsouth = create_frame(posv)
+  
+  print('Rearranged frame received, proceeding to save in data directory')
+  #save dataframe
+  westeast.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
+
+
 def main():
   load_data()
-  
-  row_size=4004
-  col_size=4004
-  puff_data(row_size,col_size)
-  #odor_expectation_plot()
+  create_wind_position_frame()
+  # row_size=4004
+  # col_size=4004
+  # puff_data(row_size,col_size)
+  # #odor_expectation_plot()
 
 if __name__ == "__main__":
   # execute only if run as a script
