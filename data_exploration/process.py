@@ -81,63 +81,67 @@ def animate_wind_jpeg():   #animation using individual jpegs
 
 def puff_radius(row,col):
   if (row > col):
-      return (row - col)
+      return ((row - col)*0.001)
   else:
       return (0)
-  
-def odor_expectation_plot():
-  ## finding encountered odor withing the calculated odor radius
-  odor_presence=[]
-  delta = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Gamma.hdf')
-  gamma = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Gamma.hdf')
-  slot_data()
-
-  # for i in range(len(puffsize)):
-  #   k=0
-  #   windx=delta.loc[i]
-  #   windy=gamma.loc[i]
-  #   puff = puffsize.loc[i]
-  #   point1 = np.array((geodfsub.xsrc[i],geodfsub.ysrc[i]))
-    
-  #   for j in range(len(windx)):
-  #       point2 = np.array((windx[j],windy[j]))
-  #       distance = np.linalg.norm(point1-point2)
-        
-  #       for x in range(len(puff)):
-  #           #puff radius comparison
-  #           if(distance<=puff[x]):
-  #               k+=1
-  #               break
-  #           else:
-  #               k+=0
-  #   if(k>0):
-  #       odor_presence.append(1)
-  #   else:
-  #       odor_presence.append(0)
-
-  #   odor_expected = []
-  #   for i in range(len(puffsize)):
-  #       if(odor_presence[i]==1):
-  #           odor_expected.append(geodfsub.odor[i])
-  #       else:
-  #           odor_expected.append(0)
-
-def create_frame(pos):
-  print('create frame starting')
-  windframe=pd.DataFrame(pos,columns=['particle{}'.format(x+1) for x in range(len(pos))])
-  print('Frame was created, Rearranging')
-  return rearrange_frame(windframe)
-
 def find_particle_position(windn):
   #find wind paritcle position  
-  posu=[]
-  posv=[]
-  for i in range(len(windn.master_time)):
-      posu.append(integrate.cumtrapz(windn.U[i:],windn.master_time[i:], axis=0, initial = 0.0)) 
-      posv.append(integrate.cumtrapz(windn.V[i:],windn.master_time[i:], axis=0, initial = 0.0))
+  westeast=pd.DataFrame(integrate.cumtrapz(windn.U[0:],windn.master_time[0:], axis=0, initial = 0.0))
+  northsouth=pd.DataFrame(integrate.cumtrapz(windn.V[0:],windn.master_time[0:], axis=0, initial = 0.0))
   
-  print('Position arryas generated')
-  return posu, posv
+  return westeast, northsouth
+
+
+def wind_particle_position(WE, NS, col,row):
+  if(col == 0):
+      pos_x = WE[col][row]
+      pos_y = NS[col][row]
+      return pos_x , pos_y
+  
+  elif(col > 0):
+      if (col > row):
+          pos_x = 0.0
+          pos_y = 0.0
+          return pos_x , pos_y
+      
+      else:
+          pos_x = WE[col-col][row-col]
+          pos_y = NS[col-col][row-col]
+          return pos_x, pos_y
+
+
+def odor_locations(WE, NS):
+  odor_presence=[]
+  row = 0
+  col = 0
+  l = len(WE)
+  for row in range(l):
+      for col in range(l):
+          k=0
+          if (col > l):
+              row=+1
+          else:
+              if(row == l):
+                  break
+              else:             
+                  windx, windy = wind_particle_position(WE, NS, col,row)
+                  wind_pos = np.array([windx, windy])     
+                  odor_pos = np.array((geodf.xsrc[row],geodf.ysrc[row]))    
+                  distance = np.linalg.norm(wind_pos-odor_pos)
+
+                  if(distance<=puff_radius(col,row)):
+                      k+=1            
+                  else:
+                      k+=0    
+      if(k>0):
+          odor_presence.append(1)
+      else:
+          odor_presence.append(0)   
+
+
+  return odor_presence
+
+
 
 def rearrange_frame(windframe):
   dfi = pd.DataFrame()
@@ -166,14 +170,9 @@ def create_wind_position_frame():
   #particle position - > returns a list of arrays
   posu , posv = find_particle_position(windn)
 
-  print('Arranging list of arrays to dataframe')
-  #returns a rearranged frame for westeast and northsouth wind (x,y)
-  westeast = create_frame(posu)
-  #northsouth = create_frame(posv)
+  print('Calculating Odor Presence')
+  odor_presence = odor_locations(posu , posv)
   
-  print('Rearranged frame received, proceeding to save in data directory')
-  #save dataframe
-  westeast.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
 
 
 def main():
