@@ -86,10 +86,15 @@ def puff_radius(row,col):
       return (0)
 def find_particle_position(windn):
   #find wind paritcle position  
-  westeast=pd.DataFrame(integrate.cumtrapz(windn.U[0:],windn.master_time[0:], axis=0, initial = 0.0))
-  northsouth=pd.DataFrame(integrate.cumtrapz(windn.V[0:],windn.master_time[0:], axis=0, initial = 0.0))
+  # westeast=pd.DataFrame(integrate.cumtrapz(windn.U[0:],windn.master_time[0:], axis=0, initial = 0.0))
+  # northsouth=pd.DataFrame(integrate.cumtrapz(windn.V[0:],windn.master_time[0:], axis=0, initial = 0.0))
   
-  return westeast, northsouth
+  print('generating particles for U')
+  positionU = [integrate.cumtrapz(windn.U[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.U))]
+  print('generating particles for V')
+  positionV = [integrate.cumtrapz(windn.V[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.V))]
+
+  return positionU, positionV
 
 
 def wind_particle_position(WE, NS, col,row):
@@ -142,7 +147,6 @@ def odor_locations(WE, NS):
   return odor_presence
 
 
-
 def rearrange_frame(windframe):
   dfi = pd.DataFrame()
   dfi['index']=windframe.index
@@ -170,9 +174,15 @@ def create_wind_position_frame():
   #particle position - > returns a list of arrays
   posu , posv = find_particle_position(windn)
 
-  print('Calculating Odor Presence')
-  odor_presence = odor_locations(posu , posv)
-  
+  # print('Calculating Odor Presence')
+  # odor_presence = odor_locations(posu , posv)
+  print('creating DataFrame')
+  westeast=pd.DataFrame(posu,columns=['particle{}'.format(x+1) for x in range(len(posu))])  
+
+  print('saving DataFrame')
+  westeast.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_WestEast.hdf', key='df2', mode='w')
+
+
 
 
 def main():
