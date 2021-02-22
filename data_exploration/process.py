@@ -146,21 +146,21 @@ import matplotlib.animation as animation
 #   return odor_presence
 
 # def rearrange_frame(windframe):
-  dfi = pd.DataFrame()
-  dfi['index']=windframe.index
-  westeast=windframe.T
-  westeast.set_index(dfi.index, inplace=True)
-  westeast.columns = ['particle' + str(col) for col in westeast.columns]
-  delta=pd.DataFrame()
-  delta[0] = westeast.iloc[:,0]
-  for i in range(1,len(westeast.columns)):
-      delta[i]=westeast['particle' + str(i)].shift(periods=i)
+  # dfi = pd.DataFrame()
+  # dfi['index']=windframe.index
+  # westeast=windframe.T
+  # westeast.set_index(dfi.index, inplace=True)
+  # westeast.columns = ['particle' + str(col) for col in westeast.columns]
+  # delta=pd.DataFrame()
+  # delta[0] = westeast.iloc[:,0]
+  # for i in range(1,len(westeast.columns)):
+  #     delta[i]=westeast['particle' + str(i)].shift(periods=i)
 
-  delta.columns = ['particle' + str(col) for col in delta.columns]
-  delta=delta.fillna(0)
-  print('Frame has be rearranged and returned for saving')
-  #delta.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
-  return delta
+  # delta.columns = ['particle' + str(col) for col in delta.columns]
+  # delta=delta.fillna(0)
+  # print('Frame has be rearranged and returned for saving')
+  # #delta.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
+  # return delta
 
 def get_new_frame(windn , odor_presence):
   odor_expected = []
