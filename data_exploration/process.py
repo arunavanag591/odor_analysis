@@ -12,6 +12,7 @@ import math
 import scipy.fftpack
 from scipy import signal
 import scipy.interpolate as interpolate
+from scipy.spatial.distance import cdist
 from scipy import integrate
 pd.TimeSeries = pd.Series 
 
@@ -96,7 +97,6 @@ def find_particle_position(windn):
 
   return positionU, positionV
 
-
 def wind_particle_position(WE, NS, col,row):
   if(col == 0):
       pos_x = WE[col][row]
@@ -113,7 +113,6 @@ def wind_particle_position(WE, NS, col,row):
           pos_x = WE[col-col][row-col]
           pos_y = NS[col-col][row-col]
           return pos_x, pos_y
-
 
 def odor_locations(WE, NS):
   odor_presence=[]
@@ -146,7 +145,6 @@ def odor_locations(WE, NS):
 
   return odor_presence
 
-
 def rearrange_frame(windframe):
   dfi = pd.DataFrame()
   dfi['index']=windframe.index
@@ -164,34 +162,66 @@ def rearrange_frame(windframe):
   #delta.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Delta.hdf', key='df2', mode='w')
   return delta
 
+def get_new_frame(windn , odor_presence):
+  odor_expected = []
+  for i in range(len(odor_presence)):
+      if(odor_presence[i]==1):
+          odor_expected.append(windn.odor[i])
+      else:
+          odor_expected.append(0)
+  windn['odor_expected'] = odor_expected
+  return windn
+
+def get_particle(windn, l):
+  if l == 0:
+      return np.array([[0,0]]) 
+  else:       
+      dt= windn.master_time[1]-windn.master_time[0]
+      a = [np.sum(windn.U[i:l])*dt for i in range(l)]
+      b = [np.sum(windn.V[i:l])*dt for i in range(l)]
+      pos = np.vstack([a,b]).T
+      return pos
+
+def get_radius(i):
+  if (i == 0):
+      return np.zeros(1)
+  else:
+      a = np.arange(start = i, stop = 0, step = -1)*0.01
+#         radius = np.resize(np.insert((a),i,np.zeros(len(delta)-i)),(1,len(delta)))
+      return a.flatten()
+
 
 def create_wind_position_frame():
-  windn=pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Interpolated.hdf')
-  windn_sync_time=windn.master_time-windn.master_time[0]
-  windn.insert(1,'sync_time',windn_sync_time)
-  
-  print('Calculating Particle Position')
-  #particle position - > returns a list of arrays
-  posu , posv = find_particle_position(windn)
+  windn = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Interpolated.hdf')
+  odor_presence = []
+  l = len(windn)
+  # farthest_odor_point = 10
+  print('Computing Encountered to Expected Distance')
+  for i in range(l):
+    print('time', i)
+    odor_pos = np.array([[windn.xsrc[i],windn.ysrc[i]]]) 
+    #print(odor_pos)
+    wind_pos = np.array(get_particle(windn, i))
+    #print(wind_pos)
+    distance = cdist(odor_pos,wind_pos).flatten()   
+    #print(distance)
+    x = distance<=get_radius(i).any()
+    if (x.any() == True):
+        odor_presence.append(1)
+    else:
+        odor_presence.append(0)
 
-  # print('Calculating Odor Presence')
-  # odor_presence = odor_locations(posu , posv)
-  print('creating DataFrame')
-  westeast=pd.DataFrame(posu,columns=['particle{}'.format(x+1) for x in range(len(posu))])  
-
-  print('saving DataFrame')
-  westeast.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_WestEast.hdf', key='df2', mode='w')
-
+  print('creating new frame')
+  wind = get_new_frame(windn, odor_presence)
+  print('Saving DataFrame')
+  wind.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_ExpectedOdor.hdf', key='df2', mode='w')
 
 
 
 def main():
-  load_data()
+  #load_data()
   create_wind_position_frame()
-  # row_size=4004
-  # col_size=4004
-  # puff_data(row_size,col_size)
-  # #odor_expectation_plot()
+  
 
 if __name__ == "__main__":
   # execute only if run as a script
