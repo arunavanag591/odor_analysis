@@ -24,128 +24,128 @@ import pylab as plt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def load_data():
-  set_number = 5
-  dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
-  windbag = 'wind0'+str(set_number)+'Run03.hdf'
-  westeast_load = 'ewdata0'+str(set_number)+'Run03.hdf'
-  northsouth_load= 'nsdata0'+str(set_number)+'Run03.hdf'
-  odor_load = 'Interpolated_'+str(set_number)+'.h5'
-  puffsize = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/puff_size.hdf')
-  odor= pd.read_hdf(dir+odor_load)
-  print('Done Loading Data')
-  return odor, windbag, westeast_load,northsouth_load, odor_load, puffsize
+# def load_data():
+#   set_number = 5
+#   dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
+#   windbag = 'wind0'+str(set_number)+'Run03.hdf'
+#   westeast_load = 'ewdata0'+str(set_number)+'Run03.hdf'
+#   northsouth_load= 'nsdata0'+str(set_number)+'Run03.hdf'
+#   odor_load = 'Interpolated_'+str(set_number)+'.h5'
+#   puffsize = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/puff_size.hdf')
+#   odor= pd.read_hdf(dir+odor_load)
+#   print('Done Loading Data')
+#   return odor, windbag, westeast_load,northsouth_load, odor_load, puffsize
 
-def slot_data():
+# def slot_data():
   
-  query = 'sync_time >= 100  and sync_time <=110'
-  dfo = odor.query(query)
-  dfwe = we.query(query)
-  dfns = ns.query(query)
-  geodfsub = geodf.query(query)
-  dfwe = dfwe.reset_index()
-  dfns = dfns.reset_index()
-  geodfsub = geodfsub.reset_index()
-  return (geodfsub)
+#   query = 'sync_time >= 100  and sync_time <=110'
+#   dfo = odor.query(query)
+#   dfwe = we.query(query)
+#   dfns = ns.query(query)
+#   geodfsub = geodf.query(query)
+#   dfwe = dfwe.reset_index()
+#   dfns = dfns.reset_index()
+#   geodfsub = geodfsub.reset_index()
+#   return (geodfsub)
 
 
-def animate_odor_jpeg():  #animation using individual jpegs
-  dir = '../../../Research/Images/container_odor/'
-  N = 0
-  for i in range(len(geodf.xsrc)):
-      fig = plt.figure()
-      fig.suptitle('Odor Encounters')
-      ax = plt.axes (xlim=(-8,15), ylim=(-2,30))
-      ax.set_xlabel('Longitude (meters)')
-      ax.set_ylabel('Latitude(meters)')
-      if (i<=3000):
-          ax.scatter(geodf.xsrc[:i],geodf.ysrc[:i], c=geodf.odor[:i], cmap='magma', s=15)
-      else:
-          ax.scatter(geodf.xsrc[N:i],geodf.ysrc[N:i], c=geodf.odor[N:i], cmap='magma', s=15)
-          N=N+1
+# def animate_odor_jpeg():  #animation using individual jpegs
+#   dir = '../../../Research/Images/container_odor/'
+#   N = 0
+#   for i in range(len(geodf.xsrc)):
+#       fig = plt.figure()
+#       fig.suptitle('Odor Encounters')
+#       ax = plt.axes (xlim=(-8,15), ylim=(-2,30))
+#       ax.set_xlabel('Longitude (meters)')
+#       ax.set_ylabel('Latitude(meters)')
+#       if (i<=3000):
+#           ax.scatter(geodf.xsrc[:i],geodf.ysrc[:i], c=geodf.odor[:i], cmap='magma', s=15)
+#       else:
+#           ax.scatter(geodf.xsrc[N:i],geodf.ysrc[N:i], c=geodf.odor[N:i], cmap='magma', s=15)
+#           N=N+1
           
-      fig.savefig(dir + "plot" + str(i) + ".jpg")
-      plt.close()
+#       fig.savefig(dir + "plot" + str(i) + ".jpg")
+#       plt.close()
 
-def animate_wind_jpeg():   #animation using individual jpegs
-  dir = '../../../Research/Images/container_wind/'
-  for i in range(len(we)):
-      fig = plt.figure()
-      fig.suptitle('Odor Encounters')
-      ax = plt.axes (xlim=(-8,15), ylim=(-2,30))
-      ax.set_xlabel('Longitude (meters)')
-      ax.set_ylabel('Latitude(meters)')
-      ax.scatter(we.loc[i], ns.loc[i],c ='b', cmap='magma', s=puffsize.loc[i]* 0.1)
-      plt.plot(0,0, marker='x', markersize=15)
-      fig.savefig(dir + "plot" + str(i) + ".jpg")
-      plt.close()
+# def animate_wind_jpeg():   #animation using individual jpegs
+#   dir = '../../../Research/Images/container_wind/'
+#   for i in range(len(we)):
+#       fig = plt.figure()
+#       fig.suptitle('Odor Encounters')
+#       ax = plt.axes (xlim=(-8,15), ylim=(-2,30))
+#       ax.set_xlabel('Longitude (meters)')
+#       ax.set_ylabel('Latitude(meters)')
+#       ax.scatter(we.loc[i], ns.loc[i],c ='b', cmap='magma', s=puffsize.loc[i]* 0.1)
+#       plt.plot(0,0, marker='x', markersize=15)
+#       fig.savefig(dir + "plot" + str(i) + ".jpg")
+#       plt.close()
 
-def puff_radius(row,col):
-  if (row > col):
-      return ((row - col)*0.001)
-  else:
-      return (0)
-def find_particle_position(windn):
-  #find wind paritcle position  
-  # westeast=pd.DataFrame(integrate.cumtrapz(windn.U[0:],windn.master_time[0:], axis=0, initial = 0.0))
-  # northsouth=pd.DataFrame(integrate.cumtrapz(windn.V[0:],windn.master_time[0:], axis=0, initial = 0.0))
+# def puff_radius(row,col):
+#   if (row > col):
+#       return ((row - col)*0.001)
+#   else:
+#       return (0)
+# def find_particle_position(windn):
+#   #find wind paritcle position  
+#   # westeast=pd.DataFrame(integrate.cumtrapz(windn.U[0:],windn.master_time[0:], axis=0, initial = 0.0))
+#   # northsouth=pd.DataFrame(integrate.cumtrapz(windn.V[0:],windn.master_time[0:], axis=0, initial = 0.0))
   
-  print('generating particles for U')
-  positionU = [integrate.cumtrapz(windn.U[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.U))]
-  print('generating particles for V')
-  positionV = [integrate.cumtrapz(windn.V[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.V))]
+#   print('generating particles for U')
+#   positionU = [integrate.cumtrapz(windn.U[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.U))]
+#   print('generating particles for V')
+#   positionV = [integrate.cumtrapz(windn.V[i:],windn.master_time[i:], axis=0, initial = 0.0) for i in range(len(windn.V))]
 
-  return positionU, positionV
+#   return positionU, positionV
 
-def wind_particle_position(WE, NS, col,row):
-  if(col == 0):
-      pos_x = WE[col][row]
-      pos_y = NS[col][row]
-      return pos_x , pos_y
+# def wind_particle_position(WE, NS, col,row):
+#   if(col == 0):
+#       pos_x = WE[col][row]
+#       pos_y = NS[col][row]
+#       return pos_x , pos_y
   
-  elif(col > 0):
-      if (col > row):
-          pos_x = 0.0
-          pos_y = 0.0
-          return pos_x , pos_y
+#   elif(col > 0):
+#       if (col > row):
+#           pos_x = 0.0
+#           pos_y = 0.0
+#           return pos_x , pos_y
       
-      else:
-          pos_x = WE[col-col][row-col]
-          pos_y = NS[col-col][row-col]
-          return pos_x, pos_y
+#       else:
+#           pos_x = WE[col-col][row-col]
+#           pos_y = NS[col-col][row-col]
+#           return pos_x, pos_y
 
-def odor_locations(WE, NS):
-  odor_presence=[]
-  row = 0
-  col = 0
-  l = len(WE)
-  for row in range(l):
-      for col in range(l):
-          k=0
-          if (col > l):
-              row=+1
-          else:
-              if(row == l):
-                  break
-              else:             
-                  windx, windy = wind_particle_position(WE, NS, col,row)
-                  wind_pos = np.array([windx, windy])     
-                  odor_pos = np.array((geodf.xsrc[row],geodf.ysrc[row]))    
-                  distance = np.linalg.norm(wind_pos-odor_pos)
+# def odor_locations(WE, NS):
+#   odor_presence=[]
+#   row = 0
+#   col = 0
+#   l = len(WE)
+#   for row in range(l):
+#       for col in range(l):
+#           k=0
+#           if (col > l):
+#               row=+1
+#           else:
+#               if(row == l):
+#                   break
+#               else:             
+#                   windx, windy = wind_particle_position(WE, NS, col,row)
+#                   wind_pos = np.array([windx, windy])     
+#                   odor_pos = np.array((geodf.xsrc[row],geodf.ysrc[row]))    
+#                   distance = np.linalg.norm(wind_pos-odor_pos)
 
-                  if(distance<=puff_radius(col,row)):
-                      k+=1            
-                  else:
-                      k+=0    
-      if(k>0):
-          odor_presence.append(1)
-      else:
-          odor_presence.append(0)   
+#                   if(distance<=puff_radius(col,row)):
+#                       k+=1            
+#                   else:
+#                       k+=0    
+#       if(k>0):
+#           odor_presence.append(1)
+#       else:
+#           odor_presence.append(0)   
 
 
-  return odor_presence
+#   return odor_presence
 
-def rearrange_frame(windframe):
+# def rearrange_frame(windframe):
   dfi = pd.DataFrame()
   dfi['index']=windframe.index
   westeast=windframe.T
