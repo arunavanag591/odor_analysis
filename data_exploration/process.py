@@ -24,18 +24,22 @@ import pylab as plt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-# def load_data():
-#   set_number = 5
-#   dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
-#   windbag = 'wind0'+str(set_number)+'Run03.hdf'
-#   westeast_load = 'ewdata0'+str(set_number)+'Run03.hdf'
-#   northsouth_load= 'nsdata0'+str(set_number)+'Run03.hdf'
-#   odor_load = 'Interpolated_'+str(set_number)+'.h5'
-#   puffsize = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/puff_size.hdf')
-#   odor= pd.read_hdf(dir+odor_load)
-#   print('Done Loading Data')
-#   return odor, windbag, westeast_load,northsouth_load, odor_load, puffsize
+#others
+import time
 
+def load_data():
+  set_number = 5
+  dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
+  windbag = 'wind0'+str(set_number)+'Run03.hdf'
+  westeast_load = 'ewdata0'+str(set_number)+'Run03.hdf'
+  northsouth_load= 'nsdata0'+str(set_number)+'Run03.hdf'
+  odor_load = 'Interpolated_'+str(set_number)+'.h5'
+  wind_load = 'wind0'+str(set_number)+'Run03_Interpolated.hdf'
+  puffsize = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/puff_size.hdf')
+  odor= pd.read_hdf(dir+odor_load)
+  windn = pd.read_hdf(dir+wind_load)
+  print('Done Loading Data')
+  return windn
 # def slot_data():
   
 #   query = 'sync_time >= 100  and sync_time <=110'
@@ -173,54 +177,48 @@ def get_new_frame(windn , odor_presence):
   return windn
 
 def get_particle(windn, l):
+
   if l == 0:
-      return np.array([[0,0]]) 
+      return np.array([[0,0]]) , np.zeros(1)
   else:       
       dt= windn.master_time[1]-windn.master_time[0]
-      a = [np.sum(windn.U[i:l])*dt for i in range(l)]
-      b = [np.sum(windn.V[i:l])*dt for i in range(l)]
-      pos = np.vstack([a,b]).T
-      return pos
+      a = np.array([sum(windn.U[i:l])*dt for i in range(l)])
+      loc = np.argwhere(a>=20)
+      a = np.delete(a,loc)
+      b = np.delete(np.array([sum(windn.V[i:l])*dt for i in range(l)]), loc)
+      pos = np.vstack([a,b]).T   
+      radius = np.arange(start = l, stop = 0, step = -1)*0.01
+      radius = np.delete(radius,loc)        
+      return pos,radius.flatten()
 
-def get_radius(i):
-  if (i == 0):
-      return np.zeros(1)
-  else:
-      a = np.arange(start = i, stop = 0, step = -1)*0.01
-#         radius = np.resize(np.insert((a),i,np.zeros(len(delta)-i)),(1,len(delta)))
-      return a.flatten()
-
-
-def create_wind_position_frame():
-  windn = pd.read_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_Interpolated.hdf')
+def create_wind_position_frame(windn, odor_position): 
+  odor_location = odor_position
+  start = time.time()
   odor_presence = []
-  l = len(windn)
-  # farthest_odor_point = 10
+  l = 4000 #len(windn)
   print('Computing Encountered to Expected Distance')
   for i in range(l):
-    print('time', i)
-    odor_pos = np.array([[windn.xsrc[i],windn.ysrc[i]]]) 
-    #print(odor_pos)
-    wind_pos = np.array(get_particle(windn, i))
-    #print(wind_pos)
+    #print('iteration:', i)
+    odor_pos = [odor_location[i]]
+    wind_pos, radius = get_particle(windn , i)
     distance = cdist(odor_pos,wind_pos).flatten()   
-    #print(distance)
-    x = distance<=get_radius(i).any()
+    x = distance<=radius.any()
     if (x.any() == True):
         odor_presence.append(1)
     else:
         odor_presence.append(0)
-
-  print('creating new frame')
-  wind = get_new_frame(windn, odor_presence)
-  print('Saving DataFrame')
-  wind.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_ExpectedOdor.hdf', key='df2', mode='w')
+  print(time.time() - start)
+  #print('creating new frame')
+  #wind = get_new_frame(windn, odor_presence)
+  #print('Saving DataFrame')
+  #wind.to_hdf('~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set05/wind05Run03_ExpectedOdor.hdf', key='df2', mode='w')
 
 
 
 def main():
-  #load_data()
-  create_wind_position_frame()
+  windn = load_data()
+  odor_position = np.array([[windn.xsrc[i],windn.ysrc[i]] for i in range (len(windn.xsrc))]) 
+  create_wind_position_frame(windn, odor_position)
   
 
 if __name__ == "__main__":
