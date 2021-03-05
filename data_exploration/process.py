@@ -26,7 +26,7 @@ import matplotlib.animation as animation
 
 #others
 import time
-import decimal
+
 
 def load_dataframe():
   set_number = 5
@@ -67,7 +67,7 @@ def update_frame(odor_presence, wind_data_frame):
   return df
 
 def calculate_expected_encounters(windn): 
-  
+  # start = time.time()
   df = pd.DataFrame()
   df = windn
   dt = df.master_time[1]-df.master_time[0]
@@ -89,14 +89,15 @@ def calculate_expected_encounters(windn):
         #TODO: Model better radius
         
     distance = cdist(odor_pos,wind_pos).flatten()   # cdist compares distance for all the points in both arrays
-    x = distance<=radius.any()                      # checking if any distance at ith time is equal or less than radius
+    distance = np.min(distance)                     # getting the smallest distance
+    x = distance<=radius                            # checking if smallest distance is equal or less than any radius
     if (x.any() == True):
         odor_presence.append(1)
     else:
         odor_presence.append(0)
   
   print('Finishing Calculating Encounters')
-
+  # print('Execution time', time.time()-start)
   return odor_presence
 
 def plot_time_series(df):
@@ -133,12 +134,12 @@ def main():
   windn = load_dataframe()  #load wind data
   print('\nComputing Wind Position')
   odor_presence = calculate_expected_encounters(windn)
-  print('\nUpdating Wind Data Frame with Calculated Encounters')
-  updated_df = update_frame(odor_presence, windn) 
-  print('\nPlot Time Series')
-  plot_time_series(updated_df)
-  print('\nPlot Concentration')
-  plot_concentration(updated_df)
+  # print('\nUpdating Wind Data Frame with Calculated Encounters')
+  # updated_df = update_frame(odor_presence, windn) 
+  # print('\nPlot Time Series')
+  # plot_time_series(updated_df)
+  # print('\nPlot Concentration')
+  # plot_concentration(updated_df)
 
 if __name__ == "__main__":
   # execute only if run as a script
