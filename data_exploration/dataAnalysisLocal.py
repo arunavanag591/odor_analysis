@@ -26,8 +26,10 @@ import matplotlib.animation as animation
 
 #others
 import time
+import multiprocessing 
+from multiprocessing import Queue
 
-
+q = Queue()
 
 def load_dataframe():
   set_number = 5
@@ -75,7 +77,8 @@ def calculate_expected_encounters(windn):
   df = pd.DataFrame()
   df = windn
   dt = df.master_time[1]-df.master_time[0]
-  odor_presence=[]
+  # odor_presence.clear()
+  # odor_presence = []
   print('Getting Encounters')
   eastwest , northsouth , odor_position = get_position(df, dt)
 
@@ -111,13 +114,17 @@ def calculate_expected_encounters(windn):
                                              # to check locations and see overlapping as well.
 
     if x==True:
-        odor_presence.append(1)
+        # odor_presence.append(1)
+        q.put(1)
     else:
-        odor_presence.append(0)
-  
+        # odor_presence.append(0)
+        q.put(0)
+
+  ## flip containers because above iteration is done in reverse order
+  # odor_presence = odor_presence[::-1]
   print('Finishing Calculating Encounters')
   #print('Execution time', time.time()-start)
-  return odor_presence
+  
 
 def plot_time_series(df):
   f, (ax1,ax2) = plt.subplots(2, 1,figsize=(20,10))
@@ -132,8 +139,6 @@ def plot_time_series(df):
   f.suptitle('Plot - Radius time**0.5*0.01', fontsize =20)
   f.show()
   plt.show()
-
-
 
 def plot_concentration(df):
   f1, (ax1,ax2) = plt.subplots(2, 1,figsize=(20,10))
@@ -206,12 +211,28 @@ def time_series_animation(windef, windes):
     fig.savefig(dir_save + "plot" + str(i) + ".jpg")
     plt.close()
 
+
 def main():
+
+  processes = [ ]
   ## 2D time series comparison
 
-  windn ,winsm ,windef ,windes = load_dataframe()         #load wind data
-  # print('\nComputing Wind Position')
-  # odor_presence = calculate_expected_encounters(windn)
+  windn ,windsm ,windef ,windes = load_dataframe()         #load wind data
+  print('\nComputing Wind Position')
+  start = time.time()
+  op = multiprocessing.Process(target=calculate_expected_encounters, args=(windsm,))
+  processes.append(op)
+  op.start()
+
+  for one_process in processes:
+    one_process.join()
+
+  odor_presence = [ ]
+  while not q.empty():
+    odor_presence.append(q.get())
+  
+  print('Execution time: ', time.time()-start)
+  print(odor_presence)
   # print('\nUpdating Wind Data Frame with Calculated Encounters')
   # updated_df = update_frame(odor_presence, windn) 
   # print('\nPlot Time Series')
@@ -223,8 +244,8 @@ def main():
 
   # print('\nGenerating plots for path animation')
   # path_animation(windef,windes)
-  print('\nGenerating plots for time series animation')
-  time_series_animation(windef,windes)
+  # print('\nGenerating plots for time series animation')
+  # time_series_animation(windef,windes)
 
 
 
