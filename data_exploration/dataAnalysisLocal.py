@@ -26,10 +26,10 @@ import matplotlib.animation as animation
 
 #others
 import time
-import multiprocessing 
-from multiprocessing import Queue
+import multiprocessing as mp
 
-q = Queue()
+q = mp.Queue()
+  
 
 def load_dataframe():
   set_number = 5
@@ -48,7 +48,6 @@ def load_dataframe():
 
   print('Done Loading Data')
   return windn, windsm, windef, windes
-
 
 def get_position(df, dt):
   # summation till Nth particle
@@ -72,10 +71,11 @@ def update_frame(odor_presence, wind_data_frame):
   return df
 
 
-def calculate_expected_encounters(windn): 
+def calculate_expected_encounters(wind): 
+  
   #start = time.time()
   df = pd.DataFrame()
-  df = windn
+  df = wind
   dt = df.master_time[1]-df.master_time[0]
   # odor_presence.clear()
   # odor_presence = []
@@ -119,12 +119,13 @@ def calculate_expected_encounters(windn):
     else:
         # odor_presence.append(0)
         q.put(0)
-
   ## flip containers because above iteration is done in reverse order
   # odor_presence = odor_presence[::-1]
+
   print('Finishing Calculating Encounters')
   #print('Execution time', time.time()-start)
-  
+  # return odor_presence
+
 
 def plot_time_series(df):
   f, (ax1,ax2) = plt.subplots(2, 1,figsize=(20,10))
@@ -212,27 +213,36 @@ def time_series_animation(windef, windes):
     plt.close()
 
 
-def main():
 
-  processes = [ ]
+def main():
+  # processes = [ ]
   ## 2D time series comparison
 
   windn ,windsm ,windef ,windes = load_dataframe()         #load wind data
   print('\nComputing Wind Position')
   start = time.time()
-  op = multiprocessing.Process(target=calculate_expected_encounters, args=(windsm,))
-  processes.append(op)
-  op.start()
-
-  for one_process in processes:
-    one_process.join()
-
   odor_presence = [ ]
-  while not q.empty():
-    odor_presence.append(q.get())
   
+  t = mp.Process(target = calculate_expected_encounters, args=(windsm,))
+  t.start()
+  print(q.get())
+  t.join()
+
+  # print('\n here')
+  # print(odor_presence[:])
   print('Execution time: ', time.time()-start)
-  print(odor_presence)
+
+  # start = time.time()
+  # print('here')
+  # pool = mp.Pool(processes = (mp.cpu_count()-1))
+  # print('here')
+  # odor_presence = pool.map(calculate_expected_encounters ,windsm)
+  # print('here')
+  # pool.close()
+  # pool.join()
+  # print('Execution time: ', time.time()-start)
+
+  # print(odor_presence)
   # print('\nUpdating Wind Data Frame with Calculated Encounters')
   # updated_df = update_frame(odor_presence, windn) 
   # print('\nPlot Time Series')
