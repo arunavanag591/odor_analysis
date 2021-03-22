@@ -9,18 +9,13 @@ import datetime as dt
 #math
 import numpy as np
 import math as m
-import scipy.fftpack
-from scipy import signal
-import scipy.interpolate as interpolate
 from scipy.spatial.distance import cdist
-from scipy import integrate
 pd.TimeSeries = pd.Series 
 
 #gps
 from geopy import distance
 
 #plots
-import pylab as pyplt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -220,17 +215,17 @@ def main():
 
   windn ,windsm ,windef ,windes = load_dataframe()         #load wind data
   print('\nComputing Wind Position')
-  start = time.time()
-  odor_presence = [ ]
+  # start = time.time()
+  # odor_presence = [ ]
   
-  t = mp.Process(target = calculate_expected_encounters, args=(windsm,))
-  t.start()
-  print(q.get())
-  t.join()
+  # t = mp.Process(target = calculate_expected_encounters, args=(windsm,))
+  # t.start()
+  # print(q.get())
+  # t.join()
 
   # print('\n here')
   # print(odor_presence[:])
-  print('Execution time: ', time.time()-start)
+  # print('Execution time: ', time.time()-start)
 
   # start = time.time()
   # print('here')
