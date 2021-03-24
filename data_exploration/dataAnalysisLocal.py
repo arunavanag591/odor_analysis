@@ -1,5 +1,5 @@
 #user-defined
-import ipynb.fs.full.helper as hp
+# import ipynb.fs.full.helper as hp
 
 #dataframes
 import pandas as pd
@@ -12,37 +12,28 @@ import math as m
 from scipy.spatial.distance import cdist
 pd.TimeSeries = pd.Series 
 
-#gps
-from geopy import distance
-
 #plots
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-#others
+#performance
 import time
 import multiprocessing as mp
 
-q = mp.Queue()
-  
 
 def load_dataframe():
   set_number = 5
-  dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
-  wind_load = 'wind0'+str(set_number)+'Run03_Interpolated.hdf'
-  wind_load_small = 'wind0'+str(set_number)+'Run03_Interpolatedsmall.hdf'
+
+  dir = '~/dataAnalysis/Sprints/Run03/Set0'+str(set_number)+'/'
+  
+  wind_load= 'wind0'+str(set_number)+'Run03_Expected_Full.hdf'
+  wind_load_small = 'wind0'+str(set_number)+'Run03_Expected_Small.hdf' ## bag saved from datavisoptimization 
+                                                                ## with expected odor information
+
   windn = pd.read_hdf(dir+wind_load)
   windsm = pd.read_hdf(dir+wind_load_small)
-
-  wind_expected_load_full = 'wind0'+str(set_number)+'Run03_expected_full.hdf'
-  wind_expected_load_small = 'wind0'+str(set_number)+'Run03_expected_small.hdf' ## bag saved from datavisoptimization 
-                                                                                ## with expected odor information
-
-  windef = pd.read_hdf(dir + wind_expected_load_full)
-  windes = pd.read_hdf(dir + wind_expected_load_small)
-
   print('Done Loading Data')
-  return windn, windsm, windef, windes
+  return windn, windsm
 
 def get_position(df, dt):
   # summation till Nth particle
@@ -64,7 +55,6 @@ def update_frame(odor_presence, wind_data_frame):
   df['odor_expected'] = odor_expected
 
   return df
-
 
 def calculate_expected_encounters(wind): 
   
@@ -121,21 +111,18 @@ def calculate_expected_encounters(wind):
   #print('Execution time', time.time()-start)
   # return odor_presence
 
-
-def plot_time_series(df):
-  f, (ax1,ax2) = plt.subplots(2, 1,figsize=(20,10))
-  ax1.plot(df.sync_time, df.odor)
-  ax1.set_ylabel('Concentration', fontsize=20)
-  ax1.title.set_text('Encountered Particle')
-  ax2.plot(df.sync_time,df.odor_expected)
-  ax2.set_xlabel('Time (secs)', fontsize=20)
-  ax2.set_ylabel('Concentration', fontsize=20)
-  ax2.title.set_text('Calculated Particle')
-
-  f.suptitle('Plot - Radius time**0.5*0.01', fontsize =20)
-  f.show()
-  plt.show()
-
+def plot_time_series(input):
+  dir_save = '/home/ecc/dataAnalysis/Images/'
+  i, df = input
+  fig = plt.figure()
+  ax = plt.axes (xlim=(0,300))
+  ax.set_xlabel('Time')
+  ax.set_ylabel('Odor Concentration')
+  ax.plot(df.sync_time[:i],df.odor[:i])
+  fig.savefig(dir_save + "plot" + str(i) + ".jpg")
+  # fig.suptitle('Odor Encountered')
+  plt.close()
+    
 def plot_concentration(df):
   f1, (ax1,ax2) = plt.subplots(2, 1,figsize=(20,10))
   ax1.scatter(df.sync_time, df.odor, c=df.odor, s=5, cmap='magma')
@@ -210,38 +197,24 @@ def time_series_animation(windef, windes):
 
 
 def main():
-  # processes = [ ]
   ## 2D time series comparison
 
-  windn ,windsm ,windef ,windes = load_dataframe()         #load wind data
-  print('\nComputing Wind Position')
-  # start = time.time()
-  # odor_presence = [ ]
+  windn ,windsm = load_dataframe()         #load wind data
+  # print('\nComputing Wind Position')
   
-  # t = mp.Process(target = calculate_expected_encounters, args=(windsm,))
-  # t.start()
-  # print(q.get())
-  # t.join()
-
-  # print('\n here')
-  # print(odor_presence[:])
-  # print('Execution time: ', time.time()-start)
-
-  # start = time.time()
-  # print('here')
-  # pool = mp.Pool(processes = (mp.cpu_count()-1))
-  # print('here')
-  # odor_presence = pool.map(calculate_expected_encounters ,windsm)
-  # print('here')
-  # pool.close()
-  # pool.join()
-  # print('Execution time: ', time.time()-start)
 
   # print(odor_presence)
   # print('\nUpdating Wind Data Frame with Calculated Encounters')
   # updated_df = update_frame(odor_presence, windn) 
-  # print('\nPlot Time Series')
-  # plot_time_series(updated_df)
+
+  print('\nPlot Time Series')
+  #multiprocessing
+  print('\n DataFrame Length = ', len(windn))
+  inputs = [[i, windn] for i in range(len(windn))]
+  pool = mp.Pool(processes=(mp.cpu_count()-1))
+  pool.map(plot_time_series, inputs)
+  pool.terminate()
+  print('\n Finished Plotting Time Series')
   # print('\nPlot Concentration')
   # plot_concentration(updated_df)
 
@@ -250,7 +223,7 @@ def main():
   # print('\nGenerating plots for path animation')
   # path_animation(windef,windes)
   # print('\nGenerating plots for time series animation')
-  # time_series_animation(windef,windes)
+
 
 
 
