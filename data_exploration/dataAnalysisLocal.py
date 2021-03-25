@@ -111,7 +111,7 @@ def calculate_expected_encounters(wind):
   #print('Execution time', time.time()-start)
   # return odor_presence
 
-def plot_time_series(input):
+def plot_time_series(dataframe):
   dir_save = '/home/ecc/dataAnalysis/Images/'
   i, df = input
   fig = plt.figure()
@@ -137,9 +137,9 @@ def plot_concentration(df):
   f1.show()
   plt.show()
 
-def path_animation(windef, windes):
+def path_animation(dataframe):
   df = pd.DataFrame()
-  df = windes
+  df = dataframe
   dt = df.master_time[1]-df.master_time[0]
 
   dir_save = '../../../Research/Images/container_odor/'
@@ -157,7 +157,7 @@ def path_animation(windef, windes):
     ax.set_xlabel('Longitude (meters)')
     ax.set_ylabel('Latitude(meters)')
     
-    #TODO: Ignoring 0th point for now, need to include letter
+    #TODO: Ignoring 0th point for now, need to include later
     
     eastwest = np.resize(np.array([eastwest-df.U[i]*dt]),(1,i)).flatten() 
     northsouth = np.resize(np.array([northsouth-df.V[i]*dt]),(1,i)).flatten()
@@ -188,13 +188,11 @@ def time_series_animation(windef, windes):
     #fig.suptitle('Odor Encounters')
     ax = plt.axes (xlim=(0,300), ylim=(0,2))              # need to change for all data sets based on limits
     ax.set_xlabel('Time')
-    ax.set_ylabel('Odor Concentration')
+    ax.set_ylabel('Odor Presence')
 
     ax.plot(df.sync_time[:i],df.odor_expected[:i])
     fig.savefig(dir_save + "plot" + str(i) + ".jpg")
     plt.close()
-
-
 
 def main():
   ## 2D time series comparison
