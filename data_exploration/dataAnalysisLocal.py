@@ -24,7 +24,8 @@ import multiprocessing as mp
 def load_dataframe():
   set_number = 5
 
-  dir = '~/dataAnalysis/Sprints/Run03/Set0'+str(set_number)+'/'
+  # dir = '~/dataAnalysis/Sprints/Run03/Set0'+str(set_number)+'/'
+  dir = '~/Documents/MyFiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
   
   wind_load= 'wind0'+str(set_number)+'Run03_Expected_Full.hdf'
   wind_load_small = 'wind0'+str(set_number)+'Run03_Expected_Small.hdf' ## bag saved from datavisoptimization 
@@ -112,8 +113,8 @@ def calculate_expected_encounters(wind):
   # return odor_presence
 
 def plot_time_series(dataframe):
-  dir_save = '/home/ecc/dataAnalysis/Images/'
-  i, df = input
+  dir_save = '../../../Research/Images/container_odor/'
+  i, df = dataframe
   fig = plt.figure()
   ax = plt.axes (xlim=(0,300))
   ax.set_xlabel('Time')
@@ -204,15 +205,15 @@ def main():
   # print(odor_presence)
   # print('\nUpdating Wind Data Frame with Calculated Encounters')
   # updated_df = update_frame(odor_presence, windn) 
-
   print('\nPlot Time Series')
   #multiprocessing
-  print('\n DataFrame Length = ', len(windn))
-  inputs = [[i, windn] for i in range(len(windn))]
+  print('\n DataFrame Length = ', len(windsm))
+  inputs = [[i, windsm] for i in range(len(windsm))]
   pool = mp.Pool(processes=(mp.cpu_count()-1))
   pool.map(plot_time_series, inputs)
   pool.terminate()
   print('\n Finished Plotting Time Series')
+  
   # print('\nPlot Concentration')
   # plot_concentration(updated_df)
 
