@@ -64,7 +64,7 @@ def calculate_expected_encounters(wind):
   df = wind
   dt = df.master_time[1]-df.master_time[0]
   # odor_presence.clear()
-  # odor_presence = []
+  odor_presence = []
   print('Getting Encounters')
   eastwest , northsouth , odor_position = get_position(df, dt)
 
@@ -100,17 +100,17 @@ def calculate_expected_encounters(wind):
                                              # to check locations and see overlapping as well.
 
     if x==True:
-        # odor_presence.append(1)
-        q.put(1)
+        odor_presence.append(1)
+        # q.put(1)
     else:
-        # odor_presence.append(0)
-        q.put(0)
+        odor_presence.append(0)
+        # q.put(0)
   ## flip containers because above iteration is done in reverse order
-  # odor_presence = odor_presence[::-1]
+  odor_presence = odor_presence[::-1]
 
   print('Finishing Calculating Encounters')
   #print('Execution time', time.time()-start)
-  # return odor_presence
+  return odor_presence
 
 def plot_time_series(dataframe):
   dir_save = '../../../Research/Images/container_odor/'
@@ -150,7 +150,7 @@ def path_animation(dataframe):
   print('Getting Encounters')
   eastwest , northsouth , odor_position = get_position(df, dt)
   
-  for i in range((len(eastwest))-1,0, -1):   
+  for i in range((len(eastwest))-1,-1, -1):   
     fig = plt.figure()
     fig.suptitle('Radius time**0.5*0.01 - Run03_Set05_Small', fontsize =14)
     
