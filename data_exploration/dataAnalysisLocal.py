@@ -27,10 +27,12 @@ def load_dataframe():
   # dir = '~/dataAnalysis/Sprints/Run03/Set0'+str(set_number)+'/'
   dir = '~/Documents/MyFiles/DataAnalysis/data/Sprints/Run03/Set0'+str(set_number)+'/'
   
-  wind_load= 'wind0'+str(set_number)+'Run03_Expected_Full.hdf'
-  wind_load_small = 'wind0'+str(set_number)+'Run03_Expected_Small.hdf' ## bag saved from datavisoptimization 
+  # wind_load= 'wind0'+str(set_number)+'Run03_Expected_Full.hdf'
+  # wind_load_small = 'wind0'+str(set_number)+'Run03_Expected_Small.hdf' ## bag saved from datavisoptimization 
                                                                 ## with expected odor information
-
+  wind_load= 'wind0'+str(set_number)+'Run03_InterpolatedX.hdf'
+  wind_load_small = 'wind0'+str(set_number)+'Run03_InterpolatedXs.hdf' 
+  
   windn = pd.read_hdf(dir+wind_load)
   windsm = pd.read_hdf(dir+wind_load_small)
   print('Done Loading Data')
@@ -111,6 +113,44 @@ def calculate_expected_encounters(wind):
   print('Finishing Calculating Encounters')
   #print('Execution time', time.time()-start)
   return odor_presence
+
+def calculate_expected_encounters_mp(inputs):
+  odor_presence=[]
+  min_distance = []
+  # max_radius = []
+  i, eastwest, northsouth, odor_position, df = inputs
+  dt = df.master_time[1]-df.master_time[0]
+  
+  if(i == 0):
+      radius = np.zeros(1)
+      wind_pos = np.array([[0,0]])
+  else:
+      eastwest = np.resize(np.array([eastwest-df.U[i]*dt]),(1,i)).flatten()     # caculating previous step and updating EW
+      northsouth = np.resize(np.array([northsouth-df.V[i]*dt]),(1,i)).flatten() # resize is necessary to avoid negative data padding
+      wind_pos = np.vstack([eastwest,northsouth]).T                             # forming 2D pairs
+      radius = np.arange(start = i, stop = 0, step = -1)**0.5*0.01              # radius
+      #TODO: Model better radius
+      
+  #TODO: Model better radius
+  #max_radius= np.max(radius)
+  # print(odor_position[i])
+  distance = cdist([odor_position[i]],wind_pos).flatten()  
+  min_distance.append(np.min(distance))
+  x = np.any(distance<=radius)
+  print('x =', x)
+  
+  if x==True:
+    odor_presence.append(1)
+      # q.put(1)
+  else:
+    odor_presence.append(0)
+      # q.put(0)
+  ## flip containers because above iteration is done in reverse order
+  odor_presence = odor_presence[::-1]
+
+  #print('Execution time', time.time()-start)
+  return odor_presence
+
 
 def plot_time_series(dataframe):
   dir_save = '../../../Research/Images/container_odor/'
@@ -194,26 +234,48 @@ def time_series_animation(windef, windes):
     ax.plot(df.sync_time[:i],df.odor_expected[:i])
     fig.savefig(dir_save + "plot" + str(i) + ".jpg")
     plt.close()
-
+odor_expected = []
 def main():
   ## 2D time series comparison
 
   windn ,windsm = load_dataframe()         #load wind data
-  # print('\nComputing Wind Position')
+  # print('\n
+  # Computing Wind Position')
+  df = windsm
+  dt = df.master_time[1]-df.master_time[0]
+  eastwest , northsouth , odor_position = get_position(df, dt)
+  inputs = [[i, eastwest, northsouth, odor_position, df] for i in range((len(eastwest))-1, -1, -1)]
+  pool = mp.Pool(processes=(mp.cpu_count()-10))
+  # global expected_odor
+  # odor_expected = pool.map(calculate_expected_encounters_mp, inputs)
+  global odor_expected
+  odor_expected = [pool.map(calculate_expected_encounters_mp, inputs)]
   
-
-  # print(odor_presence)
+  # print(expected_odor.get())
+  pool.close()
+  pool.join()
+  # print(odor_expected)
+  # print(a)
+  # odor_expected = calculate_expected_encounters(df)
+  # print(odor_expected)
+  print('Finished Calculating Encounters')
+  # plt.plot(df.master_time, a)
+  # plt.show()
+  
+  
+  
   # print('\nUpdating Wind Data Frame with Calculated Encounters')
   # updated_df = update_frame(odor_presence, windn) 
-  print('\nPlot Time Series')
-  #multiprocessing
-  print('\n DataFrame Length = ', len(windsm))
-  inputs = [[i, windsm] for i in range(len(windsm))]
-  pool = mp.Pool(processes=(mp.cpu_count()-1))
-  pool.map(plot_time_series, inputs)
-  pool.terminate()
-  print('\n Finished Plotting Time Series')
+  # print('\nPlot Time Series')
+  # #multiprocessing
+  # print('\n DataFrame Length = ', len(windsm))
+  # inputs = [[i, windsm] for i in range(len(windsm))]
+  # pool = mp.Pool(processes=(mp.cpu_count()-1))
+  # pool.map(plot_time_series, inputs)
+  # pool.terminate()
+  # print('\n Finished Plotting Time Series')
   
+
   # print('\nPlot Concentration')
   # plot_concentration(updated_df)
 
