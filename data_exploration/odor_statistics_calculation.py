@@ -1,5 +1,5 @@
 # user defined functions
-import odor_statistics_modules as osm
+import odor_statistics_lib as osm
 
 # dataframes
 import pandas as pd
@@ -85,7 +85,7 @@ def get_rsquared_distribution(inputs):
   model = osm.get_distance_statsmodel(fdf)
 
   return model
-
+      
 
 def main():
 
