@@ -1,6 +1,5 @@
 # dataframes
 import pandas as pd
-import h5py
 
 #suppress warnings
 import warnings
@@ -32,6 +31,7 @@ def wrapped_angular_diff(a, b):
   return np.arctan2(np.sin(a-b), np.cos(a-b))
 
 def get_index_simulated(df):
+  
   idx = []
   df.odorsim = df.odorsim*10
   for i in range(len(df.odorsim)):
@@ -47,6 +47,7 @@ def get_index_simulated(df):
 
 
 def get_index_filtered(df):
+  
   idx = []
   for i in range(len(df.filtered_odor)):
       if (df.filtered_odor[i]>4):
@@ -60,6 +61,7 @@ def get_index_filtered(df):
   return index
 
 def get_index(df):
+  
   idx = []
   for i in range(len(df.odor)):
       if (df.odor[i]>4):
@@ -73,6 +75,7 @@ def get_index(df):
   return index
 
 def avg_distance(df,index,fdf): #input ; location ; storage
+  
   #Distance
   i = 0
   avg_dist_source = []
@@ -90,6 +93,7 @@ def avg_distance(df,index,fdf): #input ; location ; storage
   fdf['avg_dist_from_streakline']=avg_dist_from_streakline
 
 def motion_statistics(df,index,fdf):
+  
   # RELATIVE MOTION
 
   rel_parallel_enc = []
@@ -131,6 +135,7 @@ def motion_statistics(df,index,fdf):
   fdf['avg_perpendicular_intermittency']=rel_perpendicular_inter
 
 def whiff_blank_duration(df,index,fdf):
+  
   # time of the encounters
   i = 0
   length_of_encounter = []
@@ -156,6 +161,7 @@ def whiff_blank_duration(df,index,fdf):
 
 
 def trajectory_speed(df,index,fdf):
+  
   ## Trajectory speed during Intermittency
   i = 0
   speed_at_intermittency=[]
@@ -184,6 +190,7 @@ def trajectory_speed(df,index,fdf):
   fdf['speed_at_encounter'] = speed_at_encounter
 
 def encounter_frequency(df,index,fdf):
+  
   # binary vector
   start = []
   for i in range (len(index)):
@@ -205,14 +212,38 @@ def encounter_frequency(df,index,fdf):
   #Average Encounter Frequency
   i = 0
   wfreq = []
-  dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
   while i<len(index):
     wfreq.append(np.mean(df.encounter_frequency[index[i]]))
     i+=1
   fdf['mean_encounter_frequency'] = wfreq
 
 
+def mean_avg(df,index,fdf):
+  
+  ## MA factor
+  def exp_ker(t, tau):
+      return np.exp(-t/tau)/tau
+
+  t = df.time[:8008]
+  tau = 3
+  kernel = exp_ker(t,tau)
+
+  smoothed_if = signal.convolve(df.ma_fraction, kernel, mode='same', method='auto')
+  # smoothed_if=smoothed_if[:-8007]
+  df['ma_factor']=smoothed_if
+
+  #Average Intermittency Factor
+  i = 0
+  ifr = []
+  
+  while i<len(index):
+      ifr.append(np.mean(df.ma_factor[index[i]]))
+      i+=1
+  fdf['mean_ma'] = ifr
+
+
 def wind_speed(df,index,fdf):
+  
   ### Wind speed during encounter and Intermittency
   i = 0
   wind_speed_encounter = []
@@ -233,26 +264,69 @@ def wind_speed(df,index,fdf):
         i+=1
   fdf['wind_speed_intermittency'] = wind_speed_intermittency
 
-def avg_slope(df,index,fdf):
-  # ## Avg slope calculation
-  x=df.odor
-  y=df.time
+# def avg_slope(df,index,fdf):
+  
+#   # ## Avg slope calculation
+#   x=df.odor
+#   y=df.time
 
-  params1 = [3, 1000, 200] ## Filter Design
-  x_hat, dxdt_hat = pynumdiff.linear_model.savgoldiff(x, dt, params1)
+#   params1 = [3, 1000, 200] ## Filter Design
+#   x_hat, dxdt_hat = pynumdiff.linear_model.savgoldiff(x, dt, params1)
 
-  i = 0
-  xhat = []
-  dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
-  while i<len(index):
-      xhat.append(np.mean(x_hat[index[i]]))
-      i+=1
-  fdf['estimated_odor_xhat'] = xhat
+#   i = 0
+#   xhat = []
+#   dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
+#   while i<len(index):
+#       xhat.append(np.mean(x_hat[index[i]]))
+#       i+=1
+#   fdf['estimated_odor_xhat'] = xhat
 
-  i = 0
-  dxdthat = []
-  dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
-  while i<len(index):
-      dxdthat.append(np.mean(dxdt_hat[index[i]]))
-      i+=1
-  fdf['odor_derivative'] = dxdthat
+#   i = 0
+#   dxdthat = []
+#   dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
+#   while i<len(index):
+#       dxdthat.append(np.mean(dxdt_hat[index[i]]))
+#       i+=1
+#   fdf['odor_derivative'] = dxdthat
+
+def sort_by_distance(fdf):
+  fdf = fdf.sort_values(by=['avg_dist_from_source'])
+  fdf.reset_index(inplace=True, drop=True) 
+
+  a = np.array(np.where(fdf.avg_dist_from_source <=10))
+  b = np.array(np.where((fdf.avg_dist_from_source > 10) & (fdf.avg_dist_from_source <=30)))
+  c = np.array(np.where(fdf.avg_dist_from_source > 30))
+  fdf1 = pd.DataFrame()
+  fdf2 = pd.DataFrame()
+  fdf3 = pd.DataFrame()
+
+  fdf1['distance_from_source_bin'] = np.repeat('0-10(m)',a.flatten().size)
+  fdf2['distance_from_source_bin'] = np.repeat('10-30(m)',b.flatten().size)
+  fdf3['distance_from_source_bin'] = np.repeat('>30(m)',c.flatten().size)
+  fdf['distance_from_source_bin'] = pd.concat([fdf1,fdf2,fdf3], ignore_index=True)
+  # 
+  p1 = [0]*(a.flatten().size)
+  p2 = [1]*(b.flatten().size)
+  p3 = [2]*(c.flatten().size)
+  p = p1+p2+p3
+  fdf['bins_distance']=p
+
+  return fdf
+
+def get_distance_statsmodel(fdf):
+  pd.set_option('use_inf_as_na', True) ## for excluding negative infinity and NaN values 
+  encounter_freq=smf.ols(formula='np.log10(mean_encounter_frequency) ~ np.abs(fdf.avg_perpendicular_encounter) + np.abs(fdf.avg_parallel_encounter)', data=fdf).fit()
+  whiffs=smf.ols(formula='log_whiff~ np.abs(fdf.avg_perpendicular_encounter) + np.abs(fdf.avg_parallel_encounter)', data=fdf).fit()
+  blanks=smf.ols(formula='log_blank ~ np.abs(fdf.avg_perpendicular_intermittency) + np.abs(fdf.avg_parallel_intermittency)', data=fdf).fit()
+  movingavg = smf.ols(formula='mean_ma ~ np.abs(fdf.avg_perpendicular_intermittency) + np.abs(fdf.avg_parallel_intermittency)', data=fdf).fit()
+
+  fdf['encounterfreq_resid']=encounter_freq.resid
+  fdf['whiffs_resid'] = whiffs.resid
+  fdf['blanks_resid'] = blanks.resid
+  fdf['movingavg_resid'] = movingavg.resid
+
+  distance=smf.ols(formula='avg_dist_from_source ~ whiffs_resid + movingavg_resid+ encounterfreq_resid + blanks_resid', data=fdf).fit()
+  
+  return distance
+
+
