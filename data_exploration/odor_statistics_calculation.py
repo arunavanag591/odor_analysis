@@ -83,10 +83,9 @@ def get_rsquared_distribution(inputs):
   fdf = osm.sort_by_distance(fdf)
 
   model = osm.get_distance_statsmodel(fdf)
-
+  
   return model
       
-
 def main():
 
   loaded_df = load_dataframe()     
