@@ -33,7 +33,7 @@ dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
 def load_dataframe():
 
   df = pd.DataFrame()
-  df = pd.read_hdf(dir+'NotWindy/NotWindyIF.h5')
+  df = pd.read_hdf(dir+'Windy/WindyIF.h5')
   print('Done Loading Data')
   return df
 
@@ -89,7 +89,6 @@ def get_rsquared_distribution(inputs):
 def main():
 
   loaded_df = load_dataframe()     
-
   inputs = [[i, loaded_df] for i in range(50)]
   pool = mp.Pool(processes=(mp.cpu_count()-1))
   output = pool.map(get_rsquared_distribution, inputs)
@@ -99,7 +98,6 @@ def main():
   print('Creating DataFrame')
   results_summary_to_dataframe(distance[0])
   
-
 
 if __name__ == "__main__":
   # execute only if run as a script

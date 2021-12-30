@@ -13,7 +13,7 @@ from scipy.spatial.distance import cdist
 from scipy import signal
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import pynumdiff
+import multiprocessing as mp
 
 #plots
 import figurefirst
@@ -189,6 +189,7 @@ def trajectory_speed(df,index,fdf):
     i+=1
   fdf['speed_at_encounter'] = speed_at_encounter
 
+## Encounter Frequency calculation for Moving Average
 def encounter_frequency(df,index,fdf):
   
   # binary vector
@@ -263,31 +264,6 @@ def wind_speed(df,index,fdf):
         wind_speed_intermittency.append(0)
         i+=1
   fdf['wind_speed_intermittency'] = wind_speed_intermittency
-
-# def avg_slope(df,index,fdf):
-  
-#   # ## Avg slope calculation
-#   x=df.odor
-#   y=df.time
-
-#   params1 = [3, 1000, 200] ## Filter Design
-#   x_hat, dxdt_hat = pynumdiff.linear_model.savgoldiff(x, dt, params1)
-
-#   i = 0
-#   xhat = []
-#   dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
-#   while i<len(index):
-#       xhat.append(np.mean(x_hat[index[i]]))
-#       i+=1
-#   fdf['estimated_odor_xhat'] = xhat
-
-#   i = 0
-#   dxdthat = []
-#   dt = df.time[1]-df.time[0]   ## dt is constant, dt * length gives length of time
-#   while i<len(index):
-#       dxdthat.append(np.mean(dxdt_hat[index[i]]))
-#       i+=1
-#   fdf['odor_derivative'] = dxdthat
 
 def sort_by_distance(fdf):
   fdf = fdf.sort_values(by=['avg_dist_from_source'])
