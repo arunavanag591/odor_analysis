@@ -64,7 +64,7 @@ def get_index(df):
   
   idx = []
   for i in range(len(df.odor)):
-      if (df.odor[i]>4):
+      if (df.odor[i]>4.5):
           idx.append(df.index[i])
 
   from itertools import groupby
@@ -284,6 +284,33 @@ def sort_by_distance(fdf):
   p1 = [0]*(a.flatten().size)
   p2 = [1]*(b.flatten().size)
   p3 = [2]*(c.flatten().size)
+  p = p1+p2+p3
+  fdf['bins_distance']=p
+
+  return fdf
+  
+def sort_by_distance_forest(fdf):
+  fdf = fdf.sort_values(by=['avg_dist_from_source'])
+  fdf.reset_index(inplace=True, drop=True) 
+
+  a = np.array(np.where(fdf.avg_dist_from_source <=10))
+  b = np.array(np.where((fdf.avg_dist_from_source > 10) & (fdf.avg_dist_from_source <=20)))
+  c = np.array(np.where(fdf.avg_dist_from_source > 20))
+
+  fdf1 = pd.DataFrame()
+  fdf2 = pd.DataFrame()
+  fdf3 = pd.DataFrame()
+
+  fdf1['distance_from_source_bin'] = np.repeat('0-10(m)',a.flatten().size)
+  fdf2['distance_from_source_bin'] = np.repeat('10-20(m)',b.flatten().size)
+  fdf3['distance_from_source_bin'] = np.repeat('>20(m)',c.flatten().size)
+  
+  fdf['distance_from_source_bin'] = pd.concat([fdf1,fdf2,fdf3], ignore_index=True)
+  # 
+  p1 = [0]*(a.flatten().size)
+  p2 = [1]*(b.flatten().size)
+  p3 = [2]*(c.flatten().size)
+
   p = p1+p2+p3
   fdf['bins_distance']=p
 
