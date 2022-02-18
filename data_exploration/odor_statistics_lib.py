@@ -92,6 +92,7 @@ def avg_distance(df,index,fdf): #input ; location ; storage
     i+=1
   fdf['avg_dist_from_streakline']=avg_dist_from_streakline
 
+
 def motion_statistics(df,index,fdf):
   
   # RELATIVE MOTION
@@ -189,9 +190,8 @@ def trajectory_speed(df,index,fdf):
     i+=1
   fdf['speed_at_encounter'] = speed_at_encounter
 
-## Encounter Frequency calculation for Moving Average
-def encounter_frequency(df,index,fdf):
-  
+## Encounter Frequency calculation 
+def encounter_frequency(df,index,fdf): 
   # binary vector
   start = []
   for i in range (len(index)):
@@ -203,42 +203,54 @@ def encounter_frequency(df,index,fdf):
   def exp_ker(t, tau):
       return np.exp(-t/tau)/tau
 
-  t = df.time[:8008]
+  dt = df.time[1]-df.time[0]
+  t = np.arange(0,1,dt)
+  # t=df.time[:10]
   tau = 2
   kernel = exp_ker(t,tau)
 
-  filtered = signal.convolve(df.efreq, kernel, mode='same', method='auto')
+  filtered = signal.convolve(df.efreq, kernel, mode='full', method='auto')
+  filtered = filtered[:-(len(t)-1)]
   df['encounter_frequency']=filtered
 
   #Average Encounter Frequency
   i = 0
   wfreq = []
   while i<len(index):
-    wfreq.append(np.mean(df.encounter_frequency[index[i]]))
-    i+=1
-  fdf['mean_encounter_frequency'] = wfreq
+      wfreq.append(np.mean(df.encounter_frequency[index[i]]))
+      i+=1
+  fdf['mean_ef'] = wfreq
 
+def mean_conc(df,index,fdf):
+  #Distance
+  i = 0
+  mean_concentration = []
+  while i<len(index):
+      mean_concentration.append(np.mean(df.odor[index[i]])) 
+      i+=1
+  fdf['mean_concentration']=mean_concentration
+
+def ma_fraction(df):
+  #Mean Average fraction for Whiff MA calculation
+
+  slider = 200 # 200 rows equals 1 second
+  window = np.lib.stride_tricks.sliding_window_view(df.index,slider)
+  ifact=[]
+  for i in range(len(window)):
+      ifact.append(np.count_nonzero(np.where(df.odor[window[i]]>4.5))/len(window[i]))
+
+  lst = [0] * (len(df)-len(np.lib.stride_tricks.sliding_window_view(df.index,slider)))
+  x = ifact + lst
+
+  df['ma_fraction'] = x
 
 def mean_avg(df,index,fdf):
-  
-  ## MA factor
-  def exp_ker(t, tau):
-      return np.exp(-t/tau)/tau
-
-  t = df.time[:8008]
-  tau = 3
-  kernel = exp_ker(t,tau)
-
-  smoothed_if = signal.convolve(df.ma_fraction, kernel, mode='same', method='auto')
-  # smoothed_if=smoothed_if[:-8007]
-  df['ma_factor']=smoothed_if
-
   #Average Intermittency Factor
   i = 0
   ifr = []
-  
+  dt = df.time[1]-df.time[0]
   while i<len(index):
-      ifr.append(np.mean(df.ma_factor[index[i]]))
+      ifr.append(np.mean(df.ma_fraction[index[i]]))
       i+=1
   fdf['mean_ma'] = ifr
 
