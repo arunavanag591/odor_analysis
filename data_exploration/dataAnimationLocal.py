@@ -7,7 +7,8 @@ pd.TimeSeries = pd.Series
 
 # plots
 import matplotlib.pyplot as plt
-import figurefirst 
+import figurefirst
+from figurefirst import FigureLayout,mpl_functions
 
 # performance
 import time
@@ -52,7 +53,26 @@ def plot_concentration(df):
   f1.show()
   plt.show()
 
+def animate(i):
+  ax.cla()
+  i=20*i
+  if (i>500):          
+      ax.scatter(df.distance_from_source_a.iloc[(i-n):i],df.nfs.iloc[(i-n):i], 
+                  c = df.odor.iloc[(i-n):i], 
+                  cmap = 'viridis', vmin =0 , vmax = 10, s =12)
+#         N+=1
+  else:
+      ax.scatter(df.distance_from_source_a.iloc[:i],df.nfs.iloc[:i], c = df.odor.iloc[:i],
+                  cmap = 'viridis', vmin =0 , vmax = 10, s =12 )
+      
+  mpl_functions.adjust_spines(ax,['left', 'bottom'],spine_locations={},
+                          smart_bounds=True, xticks=[0,25,50],yticks=[-25,0,25],linewidth=1)
 
+#     ax.set(xlim=(0,5), ylim=(0, -2))
+  ax.set_xlabel("Distance Along Streakline")
+  ax.set_ylabel("Nearest from Streakline")
+  f.tight_layout(pad=1)
+  figurefirst.mpl_functions.set_fontsize(f, 22)
 
 def main():
   ## 2D time series comparison
