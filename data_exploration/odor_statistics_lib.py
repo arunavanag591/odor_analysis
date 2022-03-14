@@ -35,7 +35,7 @@ def get_index_simulated(df):
   idx = []
   df.odorsim = df.odorsim*10
   for i in range(len(df.odorsim)):
-      if (df.odorsim[i]>4):
+      if (df.odorsim[i]>4.5):
           idx.append(df.index[i])
 
   from itertools import groupby
@@ -47,10 +47,10 @@ def get_index_simulated(df):
 
 
 def get_index_filtered(df):
-  
+  thres=4.5
   idx = []
   for i in range(len(df.filtered_odor)):
-      if (df.filtered_odor[i]>4):
+      if (df.filtered_odor[i]>thres):
           idx.append(df.index[i])
 
   from itertools import groupby
@@ -58,13 +58,14 @@ def get_index_filtered(df):
   index = [ ]
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
+  print(thres)
   return index
 
 def get_index(df):
   
   idx = []
   for i in range(len(df.odor)):
-      if (df.odor[i]>4.5):
+      if (df.odor[i]>5):
           idx.append(df.index[i])
 
   from itertools import groupby
@@ -83,12 +84,13 @@ def avg_distance(df,index,fdf): #input ; location ; storage
     avg_dist_source.append(np.mean(df.distance_from_source[index[i]])) ## _ is declination corrected distance
     i+=1
   fdf['avg_dist_from_source']=avg_dist_source
+  fdf['log_avg_dist_from_source']= np.log10(fdf.avg_dist_from_source)
 
   avg_dist_from_streakline = []
 
   i = 0
   while i<len(index):
-    avg_dist_from_streakline.append(np.mean(df.nearest_from_streakline_[index[i]]))
+    avg_dist_from_streakline.append(np.mean(df.nearest_from_streakline[index[i]]))
     i+=1
   fdf['avg_dist_from_streakline']=avg_dist_from_streakline
 
