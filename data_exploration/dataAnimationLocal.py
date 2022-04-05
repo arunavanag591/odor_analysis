@@ -22,7 +22,6 @@ dir_save = '../../Figure/container_odor/'
 def load_dataframe(s):
   dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/LowRes/'
   # dir_save = '../../../Research/Images/container_odor/'
-  df = pd.DataFrame()
   df = pd.read_hdf(dir+s)
   print('Done Loading Data')
   return df

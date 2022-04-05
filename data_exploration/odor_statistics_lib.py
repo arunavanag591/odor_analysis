@@ -58,10 +58,24 @@ def get_index_filtered(df):
   index = [ ]
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
-  print(thres)
+
   return index
 
 def get_index(df):
+  
+  idx = []
+  for i in range(len(df.odor)):
+      if (df.odor[i]>4.5):
+          idx.append(df.index[i])
+
+  from itertools import groupby
+  from operator import itemgetter
+  index = []
+  for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
+      index.append((list((map(itemgetter(1), g)))))
+  return index
+
+def get_index_forest(df):
   
   idx = []
   for i in range(len(df.odor)):
@@ -193,7 +207,7 @@ def trajectory_speed(df,index,fdf):
   fdf['speed_at_encounter'] = speed_at_encounter
 
 ## Encounter Frequency calculation 
-def encounter_frequency(df,index,fdf): 
+def encounter_frequency(df,index,fdf,kernel_size): 
   # binary vector
   start = []
   for i in range (len(index)):
@@ -206,7 +220,7 @@ def encounter_frequency(df,index,fdf):
       return np.exp(-t/tau)/tau
 
   dt = df.time[1]-df.time[0]
-  t = np.arange(0,1,dt)
+  t = np.arange(0,kernel_size,dt)
   # t=df.time[:10]
   tau = 2
   kernel = exp_ker(t,tau)
@@ -221,7 +235,8 @@ def encounter_frequency(df,index,fdf):
   while i<len(index):
       wfreq.append(np.mean(df.encounter_frequency[index[i]]))
       i+=1
-  fdf['mean_ef'] = wfreq
+  # fdf['mean_ef'] = wfreq
+  return wfreq
 
 def mean_conc(df,index,fdf):
   #Distance
@@ -232,10 +247,10 @@ def mean_conc(df,index,fdf):
       i+=1
   fdf['mean_concentration']=mean_concentration
 
-def ma_fraction(df):
+def ma_fraction(df,window_size):
   #Mean Average fraction for Whiff MA calculation
 
-  slider = 200 # 200 rows equals 1 second
+  slider = window_size # 200 rows equals 1 second
   window = np.lib.stride_tricks.sliding_window_view(df.index,slider)
   ifact=[]
   for i in range(len(window)):
