@@ -100,14 +100,22 @@ def avg_distance(df,index,fdf): #input ; location ; storage
   fdf['avg_dist_from_source']=avg_dist_source
   fdf['log_avg_dist_from_source']= np.log10(fdf.avg_dist_from_source)
 
-  avg_dist_from_streakline = []
+  avg_xsign = []
+  i = 0
+  while i<len(index):
+    avg_xsign.append(np.mean(df.xsign[index[i]]))
+    i+=1
+  fdf['avg_xsign']=np.sign(avg_xsign)
+  fdf['avg_xsign']=fdf['avg_xsign'].replace(0,1)
 
+
+  avg_dist_from_streakline = []
   i = 0
   while i<len(index):
     avg_dist_from_streakline.append(np.mean(df.nearest_from_streakline[index[i]]))
     i+=1
   fdf['avg_dist_from_streakline']=avg_dist_from_streakline
-
+  fdf['log_avg_dist_from_source_signed'] = fdf.log_avg_dist_from_source*fdf.avg_xsign
 
 def motion_statistics(df,index,fdf):
   
@@ -235,7 +243,7 @@ def encounter_frequency(df,index,fdf,kernel_size):
   while i<len(index):
       wfreq.append(np.mean(df.encounter_frequency[index[i]]))
       i+=1
-  # fdf['mean_ef'] = wfreq
+  fdf['mean_ef'] = wfreq
   return wfreq
 
 def mean_conc(df,index,fdf):
