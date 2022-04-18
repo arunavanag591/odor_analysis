@@ -215,7 +215,7 @@ def trajectory_speed(df,index,fdf):
   fdf['speed_at_encounter'] = speed_at_encounter
 
 ## Encounter Frequency calculation 
-def encounter_frequency(df,index,fdf,kernel_size): 
+def encounter_frequency(df,index,fdf,kernel_size,tau): 
   # binary vector
   start = []
   for i in range (len(index)):
@@ -230,7 +230,7 @@ def encounter_frequency(df,index,fdf,kernel_size):
   dt = df.time[1]-df.time[0]
   t = np.arange(0,kernel_size,dt)
   # t=df.time[:10]
-  tau = 2
+  tau = tau
   kernel = exp_ker(t,tau)
 
   filtered = signal.convolve(df.efreq, kernel, mode='full', method='auto')
@@ -243,7 +243,7 @@ def encounter_frequency(df,index,fdf,kernel_size):
   while i<len(index):
       wfreq.append(np.mean(df.encounter_frequency[index[i]]))
       i+=1
-  fdf['mean_ef'] = wfreq
+  # fdf['mean_ef'] = wfreq
   return wfreq
 
 def mean_conc(df,index,fdf):
