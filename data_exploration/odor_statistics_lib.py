@@ -225,12 +225,11 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
 
   ## encounter frequency
   def exp_ker(t, tau):
-      return np.exp(-t/tau)/tau
+    return np.exp(-t/tau)/tau
 
   dt = df.time[1]-df.time[0]
   t = np.arange(0,kernel_size,dt)
   # t=df.time[:10]
-  tau = tau
   kernel = exp_ker(t,tau)
 
   filtered = signal.convolve(df.efreq, kernel, mode='full', method='auto')
@@ -243,7 +242,7 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
   while i<len(index):
       wfreq.append(np.mean(df.encounter_frequency[index[i]]))
       i+=1
-  # fdf['mean_ef'] = wfreq
+  fdf['mean_ef'] = wfreq
   return wfreq
 
 def mean_conc(df,index,fdf):
