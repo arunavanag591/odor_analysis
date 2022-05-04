@@ -49,9 +49,9 @@ dir = '~/DataAnalysis/data/Sprints/HighRes/'
 def load_dataframe():
  
   # dir_save = '../../../Research/Images/container_odor/'
-  windy = create_class_column(pd.read_hdf(dir+'Windy/WindyStats.h5'))
-  nwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyStats.h5'))
-  forest = create_class_column(pd.read_hdf(dir+'Forest/ForestStats.h5'))
+  windy = create_class_column(pd.read_hdf(dir+'Windy/WindyStatsLog.h5'))
+  nwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyStatsLog.h5'))
+  forest = create_class_column(pd.read_hdf(dir+'Forest/ForestStatsLog.h5'))
   print('Done Loading Data')
   return windy,nwindy,forest
 
@@ -118,7 +118,7 @@ def main():
   for i in range(1,51):   # i - number of features
     cl = [0,1,2]
     input1 = [[distance_class,newtest,i] for distance_class in cl]
-    input2 = [[distance_class,forest,i] for distance_class in [0,1]]
+    input2 = [[distance_class,nwindy,i] for distance_class in cl]
     pool = mp.Pool(processes=(mp.cpu_count()-1))
     Xtrain,ytrain=zip(*pool.map(gather_stat, input1))
     Xtest,ytest=zip(*pool.map(gather_stat, input2))
@@ -132,7 +132,7 @@ def main():
   score_df = pd.DataFrame()
   score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
   score_df["accuracy"] = list_of_scores
-  score_df.to_hdf(dir+'Scores_forest.h5', key='score_df', mode='w')
+  score_df.to_hdf(dir+'AccuracyScoresNB/LoggedScores/Scores_desert_nwindy.h5', key='score_df', mode='w')
 
   
   
