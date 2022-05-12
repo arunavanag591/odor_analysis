@@ -25,18 +25,6 @@ from scipy import stats
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 
-#plots
-# import string
-# import figurefirst
-# from figurefirst import FigureLayout,mpl_functions
-# import matplotlib.ticker as mtick
-# import pylab as plt
-# import matplotlib.pyplot as plt
-# from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-#                                AutoMinorLocator)
-# from mpl_toolkits.axes_grid1 import make_axes_locatable # for colorbar
-# import seaborn as sns
-# sns.set_style("whitegrid")
 pd.options.mode.chained_assignment = None
 
 
@@ -52,9 +40,9 @@ def load_dataframe():
   # windy = create_class_column(pd.read_hdf(dir+'Windy/WindyStats.h5'))
   # nwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyStats.h5'))
   # forest = create_class_column(pd.read_hdf(dir+'Forest/ForestStats.h5'))
-  windy = pd.read_hdf(dir+'Windy/WindyStats.h5')
-  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStats.h5')
-  forest = pd.read_hdf(dir+'Forest/ForestStats.h5')
+  windy = pd.read_hdf(dir+'Windy/WindyStatsLog.h5')
+  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsLog.h5')
+  forest = pd.read_hdf(dir+'Forest/ForestStatsLog.h5')
   print('Done Loading Data')
   return windy,nwindy,forest
 
@@ -69,19 +57,35 @@ def create_class_column(dataframe):
   dataframe.loc[dataframe.avg_dist_from_source < 5, 'type'] = 0
   dataframe.loc[(dataframe.avg_dist_from_source >= 5)  & (dataframe.avg_dist_from_source < 30), 'type'] = 1
   dataframe.loc[dataframe.avg_dist_from_source >= 30, 'type'] = 2
-
   return dataframe
+
+def create_class_column_forest(dataframe):
+    dataframe.loc[dataframe.avg_dist_from_source < 5, 'type'] = 0
+    dataframe.loc[(dataframe.avg_dist_from_source >= 5)  & (dataframe.avg_dist_from_source < 10), 'type'] = 1
+    dataframe.loc[dataframe.avg_dist_from_source >= 10, 'type'] = 2
+    return dataframe
+
+def check_length(dataframe, Nrows, nrows, N):
+  if (len(Nrows) !=N):
+      rowsneeded  = N - len(Nrows) 
+      Nrows = Nrows.append(dataframe[(nrows.index-rowsneeded).values[0]:(nrows.index).values[0]])
+      Nrows = Nrows.sort_index()
+      return Nrows
+      # check_length(dataframe,Nrows, nrows, N)
+  else:
+      return Nrows
+  
+def get_rows(dataframe, N):
+  nrows = dataframe.sample(1)
+  Nrows = dataframe[(nrows.index).values[0]:(nrows.index+N).values[0]]
+  Nrows = check_length(dataframe,Nrows, nrows, N)
+  return Nrows
 
 def stack_arrays(a):
   A = np.full((len(a), max(map(len, a))), np.nan)
   for i, aa in enumerate(a):
     A[i, :len(aa)] = aa
   return A
-
-def get_rows(dataframe, N):
-  nrows = dataframe.sample(1)
-  Nrows = dataframe[(nrows.index).values[0]:(nrows.index+N).values[0]]
-  return Nrows
 
 def get_prediction_same_dataframe(X,y):
   # # Train classifier
@@ -102,16 +106,18 @@ def get_prediction(Xtest,ytest, Xtrain, ytrain):
   return clf.score(Xtest,ytest)
 
 
-# for each collection of data to use for the classifier, get statistics from N consecutive encounters
+# for each collection of data to use for the classifier, get statistics from N encounters
 def get_N_consecutive_encounter_stats(dataframe, distance_class, N):
   df_q = dataframe.query('type == ' + str(distance_class))   
   df_q.reset_index(inplace=True, drop=True)     
   Nrows = get_rows(df_q,N)
   return np.ravel( Nrows[['mean_concentration','mean_ef','log_whiff','mean_ma']].values )
 
-# for each collection of data to use for the classifier, get statistics from N random encounters
+
+# for each collection of data to use for the classifier, get statistics from N encounters
 def get_N_random_encounter_stats(dataframe, distance_class, N):
-  df_q = dataframe.query('type == ' + str(distance_class))
+  df_q = dataframe.query('type == ' + str(distance_class))   
+  df_q.reset_index(inplace=True, drop=True)     
   Nrows = df_q.sample(N)
   return np.ravel( Nrows[['mean_concentration','mean_ef','log_whiff','mean_ma']].values )
 
@@ -151,11 +157,11 @@ def main():
   list_of_scores = []
   for i in range(1,51):   # i - number of features
     cl = [0,1,2]
-    input1 = [[distance_class,newtest,i] for distance_class in cl]
-    input2 = [[distance_class,forest,i] for distance_class in [0,1]]
+    input1 = [[distance_class,nwindy,i] for distance_class in cl]
+    input2 = [[distance_class,windy,i] for distance_class in [0,1,2]]
     pool = mp.Pool(processes=(mp.cpu_count()-1))
-    Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
-    Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
+    Xtrain,ytrain=zip(*pool.map(gather_stat_consecutive, input1))
+    Xtest,ytest=zip(*pool.map(gather_stat_consecutive, input2))
     # print(np.asarray(Xtrain).shape)
     pool.terminate()
     Xtest,ytest = reshape_array(Xtest,ytest)
@@ -167,7 +173,7 @@ def main():
   score_df = pd.DataFrame()
   score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
   score_df["accuracy"] = list_of_scores
-  score_df.to_hdf(dir+'AccuracyScoresNB/Random/NotLogged/Scoresf.h5', key='score_df', mode='w')
+  score_df.to_hdf(dir+'AccuracyScoresNB/Consecutive/Logged/Scoreslwsh.h5', key='score_df', mode='w')
 
   
   
