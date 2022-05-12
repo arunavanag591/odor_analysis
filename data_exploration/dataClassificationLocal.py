@@ -100,10 +100,7 @@ def get_prediction(Xtest,ytest, Xtrain, ytrain):
   clf = GaussianNB()
   y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
   return clf.score(Xtest,ytest)
-  # print("Naive Bayes Test set Score: ",clf.score(Xtest, ytest))
-  # # print("Naive Bayes Train set Score: ",clf.score(Xtrain, ytrain))
-  # print("Number of mislabeled points out of a total %d points : %d"
-  #       % (Xtest.shape[0], (ytest != y_pred).sum()))
+
 
 # for each collection of data to use for the classifier, get statistics from N consecutive encounters
 def get_N_consecutive_encounter_stats(dataframe, distance_class, N):
@@ -139,11 +136,11 @@ def gather_stat_consecutive(inputs):
     y.append(distance_class)
   return X,y
 
-# def reshape_array(X,y):
-#   return np.vstack(X), list(itertools.chain.from_iterable(y)) 
-
 def reshape_array(X,y):
-  return stack_arrays(X), list(itertools.chain.from_iterable(y)) 
+  return np.vstack(X), list(itertools.chain.from_iterable(y)) 
+
+# def reshape_array(X,y):
+#   return stack_arrays(X), list(itertools.chain.from_iterable(y)) 
 
 def main():
   # print(mp.current_process())
@@ -152,25 +149,25 @@ def main():
   newtest.reset_index(inplace=True, drop=True)
 
   list_of_scores = []
-  for i in range(1,5):   # i - number of features
+  for i in range(1,51):   # i - number of features
     cl = [0,1,2]
-    input1 = [[distance_class,nwindy,i] for distance_class in cl]
-    input2 = [[distance_class,windy,i] for distance_class in cl]
+    input1 = [[distance_class,newtest,i] for distance_class in cl]
+    input2 = [[distance_class,forest,i] for distance_class in [0,1]]
     pool = mp.Pool(processes=(mp.cpu_count()-1))
-    Xtrain,ytrain=zip(*pool.map(gather_stat_consecutive, input1))
-    Xtest,ytest=zip(*pool.map(gather_stat_consecutive, input2))
-    print(np.asarray(Xtrain).shape)
-    # pool.terminate()
-    # Xtest,ytest = reshape_array(Xtest,ytest)
-    # Xtrain,ytrain = reshape_array(Xtrain,ytrain)
-    # list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
-    # print(i)
+    Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
+    Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
+    # print(np.asarray(Xtrain).shape)
+    pool.terminate()
+    Xtest,ytest = reshape_array(Xtest,ytest)
+    Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+    list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
+    print(i)
   
-  # print('saving data')
-  # score_df = pd.DataFrame()
-  # score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
-  # score_df["accuracy"] = list_of_scores
-  # score_df.to_hdf(dir+'AccuracyScoresNB/Consecutive/NotLogged/Scoreslwsh.h5', key='score_df', mode='w')
+  print('saving data')
+  score_df = pd.DataFrame()
+  score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
+  score_df["accuracy"] = list_of_scores
+  score_df.to_hdf(dir+'AccuracyScoresNB/Random/NotLogged/Scoresf.h5', key='score_df', mode='w')
 
   
   
