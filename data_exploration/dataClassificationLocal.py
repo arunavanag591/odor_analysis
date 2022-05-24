@@ -1,4 +1,5 @@
 # user defined functions
+from turtle import distance
 from venv import create
 import odor_statistics_lib as osm
 
@@ -44,9 +45,10 @@ pd.options.mode.chained_assignment = None
 import time
 import multiprocessing as mp
 dir_save = '../../Figure/container_odor/'
+dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
 
 def load_dataframe():
-  dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
+ 
   # dir_save = '../../../Research/Images/container_odor/'
   windy = create_class_column(pd.read_hdf(dir+'Windy/WindyStats.h5'))
   nwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyStats.h5'))
@@ -75,13 +77,15 @@ def get_prediction_same_dataframe(X,y):
 
   print("Naive Bayes score: ",gnb.score(X_test, y_test))
 
+
 def get_prediction(Xtest,ytest, Xtrain, ytrain):
   clf = GaussianNB()
   y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
-  print("Naive Bayes Test set Score: ",clf.score(Xtest, ytest))
-  # print("Naive Bayes Train set Score: ",clf.score(Xtrain, ytrain))
-  print("Number of mislabeled points out of a total %d points : %d"
-        % (Xtest.shape[0], (ytest != y_pred).sum()))
+  return clf.score(Xtest,ytest)
+  # print("Naive Bayes Test set Score: ",clf.score(Xtest, ytest))
+  # # print("Naive Bayes Train set Score: ",clf.score(Xtrain, ytrain))
+  # print("Number of mislabeled points out of a total %d points : %d"
+  #       % (Xtest.shape[0], (ytest != y_pred).sum()))
 
 # for each collection of data to use for the classifier, get statistics from N encounters
 def get_N_random_encounter_stats(dataframe, distance_class, N):
@@ -91,7 +95,7 @@ def get_N_random_encounter_stats(dataframe, distance_class, N):
                           'mean_ef','log_whiff','mean_ma']].values )
 
 def gather_stat(inputs):
-  distance_class,dataframe = inputs
+  distance_class,dataframe,number_of_encounters = inputs
   X=[]
   y=[]
   for i in range(len(dataframe)):
@@ -102,21 +106,31 @@ def gather_stat(inputs):
 def reshape_array(X,y):
   return np.vstack(X), list(itertools.chain.from_iterable(y)) 
 
-number_of_encounters = 12  # features per feature - global variable x
+# number_of_encounters = 12  # features per feature - global variable x
 
 def main():
+  # print(mp.current_process())
   windy,nwindy=load_dataframe()
-  cl = [0,1,2]
-  input1 = [[distance_class,nwindy] for distance_class in cl]
-  input2 = [[distance_class,windy] for distance_class in cl]
-  pool = mp.Pool(processes=(len(cl)))
-  Xtrain,ytrain=zip(*pool.map(gather_stat, input1))
-  Xtest,ytest=zip(*pool.map(gather_stat, input2))
-  pool.terminate()
-  print('Getting Prediction')
-  Xtest,ytest = reshape_array(Xtest,ytest)
-  Xtrain,ytrain = reshape_array(Xtrain,ytrain)
-  get_prediction(Xtest,ytest, Xtrain, ytrain)
+  list_of_scores = []
+  for i in range(1,3):   # i - number of encounter
+    cl = [0,1,2]
+    input1 = [[distance_class,nwindy,i] for distance_class in cl]
+    input2 = [[distance_class,windy,i] for distance_class in cl]
+    pool = mp.Pool(processes=(len(cl)))
+    Xtrain,ytrain=zip(*pool.map(gather_stat, input1))
+    Xtest,ytest=zip(*pool.map(gather_stat, input2))
+    pool.terminate()
+    Xtest,ytest = reshape_array(Xtest,ytest)
+    Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+    list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
+    print(i)
+  # print ('list_of_scores', list_of_scores)
+  print('saving data')
+  score_df = pd.DataFrame()
+  score_df["number_of_features"]=np.arange(1,len(list_of_scores)+1,1)
+  score_df["Accuracy"] = list_of_scores
+  score_df.to_hdf(dir+'Scores.h5', key='score_df', mode='w')
+
   
   
 if __name__ == "__main__":
