@@ -50,9 +50,9 @@ dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
 def load_dataframe():
  
   # dir_save = '../../../Research/Images/container_odor/'
-  windy = pd.read_hdf(dir+'Windy/WindyStats.h5')
-  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStats.h5')
-  forest = pd.read_hdf(dir+'Forest/ForestStats.h5')
+  windy = pd.read_hdf(dir+'Windy/WindyStats_n.h5')
+  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStats_n.h5')
+  forest = pd.read_hdf(dir+'Forest/ForestStats_n.h5')
   print('Done Loading Data')
   return windy,nwindy,forest
 
@@ -217,7 +217,7 @@ def main():
     for bootstrap in range(0,bootstrap_length):
   
       input1 = [[distance_class,desert,features] for distance_class in [0,1,2]]
-      input2 = [[distance_class,forest,features] for distance_class in [0,1]]
+      input2 = [[distance_class,nwindy,features] for distance_class in [0,1,2]]
       pool = mp.Pool(processes=(mp.cpu_count()-1))
       Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
       Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
@@ -236,7 +236,7 @@ def main():
     accuracydf.loc[:,'class_2'+ str(iterator)]=[item[2] for item in accuracy]
     iterator+=1
 
-  accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_forest.h5', key='accuracydf', mode='w')
+  accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_nwindy_n.h5', key='accuracydf', mode='w')
   
   
 if __name__ == "__main__":
