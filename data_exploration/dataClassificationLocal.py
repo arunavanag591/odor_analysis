@@ -3,6 +3,7 @@ from turtle import distance
 from venv import create
 import odor_statistics_lib as osm
 
+
 # dataframes
 import pandas as pd
 import h5py
@@ -24,7 +25,22 @@ from scipy import stats
 #classification
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
 
+#plots
+import string
+import figurefirst
+from figurefirst import FigureLayout,mpl_functions
+import matplotlib.ticker as mtick
+import pylab as plt
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                               AutoMinorLocator)
+from mpl_toolkits.axes_grid1 import make_axes_locatable # for colorbar
+import seaborn as sns
+sns.set()
+sns.set_style("whitegrid")
 pd.options.mode.chained_assignment = None
 
 
@@ -46,6 +62,7 @@ def load_dataframe():
   print('Done Loading Data')
   return windy,nwindy,forest
 
+  
 def create_class_column_log(dataframe):
   dataframe.loc[dataframe.log_avg_dist_from_source_signed < 0.7, 'type'] = 0
   dataframe.loc[(dataframe.log_avg_dist_from_source_signed >= 0.7)  & 
@@ -127,7 +144,7 @@ def gather_stat_random(inputs):
   distance_class,dataframe,number_of_encounters = inputs
   X=[]
   y=[]
-  for i in range(1500):
+  for i in range(200):
     X.append(get_N_random_encounter_stats(dataframe, distance_class, number_of_encounters))
     y.append(distance_class)
   return X,y
@@ -145,36 +162,89 @@ def gather_stat_consecutive(inputs):
 def reshape_array(X,y):
   return np.vstack(X), list(itertools.chain.from_iterable(y)) 
 
-# def reshape_array(X,y):
-#   return stack_arrays(X), list(itertools.chain.from_iterable(y)) 
+# def class_population_accuracy(ytest,y_pred):
+    
+#   cm = confusion_matrix(ytest, y_pred)
+#   cm = (cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]).diagonal()
+
+#   return cm
+
+def class_population_accuracy(ytest,y_pred):
+  cm = confusion_matrix(ytest, y_pred)
+  class_acc=[]
+  # Calculate the accuracy for each one of our classes
+  for idx, cls in enumerate([0,1,2]):
+    # True negatives are all the samples that are not our current GT class (not the current row) 
+    # and were not predicted as the current class (not the current column)
+    tn = np.sum(np.delete(np.delete(cm, idx, axis=0), idx, axis=1))
+    # True positives are all the samples of our current GT class that were predicted as such
+    tp = cm[idx, idx]
+    # The accuracy for the current class is ratio between correct predictions to all predictions
+    class_acc.append((tp+tn)/np.sum(cm))
+  return (class_acc)
+
+# def main():
+#   # print(mp.current_process())
+#   windy,nwindy,forest=load_dataframe()
+#   desert = pd.concat([nwindy,windy])
+#   desert.reset_index(inplace=True, drop=True)
+
+#   list_of_scores = []
+#   for i in range(1,51):   # i - number of features
+#     cl = [0,1,2]
+#     input1 = [[distance_class,desert,i] for distance_class in cl]
+#     input2 = [[distance_class,forest,i] for distance_class in [0,1]]
+#     pool = mp.Pool(processes=(mp.cpu_count()-1))
+#     Xtrain,ytrain=zip(*pool.map(gather_stat_consecutive, input1))
+#     Xtest,ytest=zip(*pool.map(gather_stat_consecutive, input2))
+#     # print(np.asarray(Xtrain).shape)
+#     pool.terminate()
+#     Xtest,ytest = reshape_array(Xtest,ytest)
+#     Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+#     list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
+#     print(i)
+#   print('saving data')
+#   score_df = pd.DataFrame()
+#   score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
+#   score_df["accuracy"] = list_of_scores
+#   score_df.to_hdf(dir+'Classifier/Scores_desert_forest.h5', key='score_df', mode='w')
+
 
 def main():
-  # print(mp.current_process())
   windy,nwindy,forest=load_dataframe()
-  newtest = pd.concat([nwindy,windy])
-  newtest.reset_index(inplace=True, drop=True)
+  desert = pd.concat([nwindy,windy])
+  desert.reset_index(inplace=True, drop=True) 
 
-  list_of_scores = []
-  for i in range(1,51):   # i - number of features
-    cl = [0,1,2]
-    input1 = [[distance_class,nwindy,i] for distance_class in cl]
-    input2 = [[distance_class,windy,i] for distance_class in [0,1,2]]
-    pool = mp.Pool(processes=(mp.cpu_count()-1))
-    Xtrain,ytrain=zip(*pool.map(gather_stat_consecutive, input1))
-    Xtest,ytest=zip(*pool.map(gather_stat_consecutive, input2))
-    # print(np.asarray(Xtrain).shape)
-    pool.terminate()
-    Xtest,ytest = reshape_array(Xtest,ytest)
-    Xtrain,ytrain = reshape_array(Xtrain,ytrain)
-    list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
-    print(i)
+  accuracydf=pd.DataFrame()
+  bootstrap_length=25
+  iterator=1
+  for features in range(1,51):
+    accuracy = []
+    
+    for bootstrap in range(0,bootstrap_length):
   
-  print('saving data')
-  score_df = pd.DataFrame()
-  score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
-  score_df["accuracy"] = list_of_scores
-  score_df.to_hdf(dir+'AccuracyScoresNB/Consecutive/Logged/Scoreslwsh.h5', key='score_df', mode='w')
-
+      input1 = [[distance_class,desert,features] for distance_class in [0,1,2]]
+      input2 = [[distance_class,nwindy,features] for distance_class in [0,1,2]]
+      pool = mp.Pool(processes=(mp.cpu_count()-1))
+      Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
+      Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
+      pool.terminate()
+      Xtest,ytest = reshape_array(Xtest,ytest)
+      Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+      clf = GaussianNB()
+      y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
+      
+      
+      accuracy.append(class_population_accuracy(ytest,y_pred))
+    print('feature:',features,' complete fitting')
+    # accuracydf.loc[:,'feature_'+str(iterator)] =np.repeat(features,bootstrap_length)
+    accuracydf.loc[:,'class_0'+ str(iterator)]=[item[0] for item in accuracy]
+    accuracydf.loc[:,'class_1'+ str(iterator)]=[item[1] for item in accuracy]
+    accuracydf.loc[:,'class_2'+ str(iterator)]=[item[2] for item in accuracy]
+    iterator+=1
+ 
+  accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_nwindy_n.h5', key='accuracydf', mode='w')
+  
   
   
 if __name__ == "__main__":
