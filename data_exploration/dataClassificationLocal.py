@@ -1,8 +1,5 @@
 # user defined functions
-from turtle import distance
-from venv import create
 import odor_statistics_lib as osm
-
 
 # dataframes
 import pandas as pd
@@ -47,22 +44,18 @@ pd.options.mode.chained_assignment = None
 # performance
 import time
 import multiprocessing as mp
-# dir_save = '../../Figure/container_odor/'
-dir = '~/DataAnalysis/data/Sprints/HighRes/'
+dir_save = '../../Figure/container_odor/'
+dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
 
 def load_dataframe():
  
   # dir_save = '../../../Research/Images/container_odor/'
-  # windy = create_class_column(pd.read_hdf(dir+'Windy/WindyStats.h5'))
-  # nwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyStats.h5'))
-  # forest = create_class_column(pd.read_hdf(dir+'Forest/ForestStats.h5'))
-  windy = pd.read_hdf(dir+'Windy/WindyStatsLog.h5')
-  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsLog.h5')
-  forest = pd.read_hdf(dir+'Forest/ForestStatsLog.h5')
+  windy = pd.read_hdf(dir+'Windy/WindyStats_n.h5')
+  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStats_n.h5')
+  forest = pd.read_hdf(dir+'Forest/ForestStats_n.h5')
   print('Done Loading Data')
   return windy,nwindy,forest
 
-  
 def create_class_column_log(dataframe):
   dataframe.loc[dataframe.log_avg_dist_from_source_signed < 0.7, 'type'] = 0
   dataframe.loc[(dataframe.log_avg_dist_from_source_signed >= 0.7)  & 
@@ -242,9 +235,8 @@ def main():
     accuracydf.loc[:,'class_1'+ str(iterator)]=[item[1] for item in accuracy]
     accuracydf.loc[:,'class_2'+ str(iterator)]=[item[2] for item in accuracy]
     iterator+=1
- 
+
   accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_nwindy_n.h5', key='accuracydf', mode='w')
-  
   
   
 if __name__ == "__main__":

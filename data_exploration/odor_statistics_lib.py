@@ -243,7 +243,7 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
       wfreq.append(np.mean(df.encounter_frequency[index[i]]))
       i+=1
   fdf['mean_ef'] = wfreq
-  # return wfreq
+  return wfreq
 
 def mean_conc(df,index,fdf):
   #Distance
