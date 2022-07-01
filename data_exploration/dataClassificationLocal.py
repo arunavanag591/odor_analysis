@@ -24,6 +24,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import PCA
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
+from sklearn.ensemble import RandomForestClassifier
 
 #plots
 import string
@@ -50,9 +59,9 @@ dir = '~/Documents/Myfiles/DataAnalysis/data/Sprints/HighRes/'
 def load_dataframe():
  
   # dir_save = '../../../Research/Images/container_odor/'
-  windy = pd.read_hdf(dir+'Windy/WindyStats_n.h5')
-  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStats_n.h5')
-  forest = pd.read_hdf(dir+'Forest/ForestStats_n.h5')
+  windy = pd.read_hdf(dir+'Windy/WindyStatsTime.h5')
+  nwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsTime.h5')
+  forest = pd.read_hdf(dir+'Forest/ForestStatsTime.h5')
   print('Done Loading Data')
   return windy,nwindy,forest
 
@@ -101,7 +110,6 @@ def get_prediction_same_dataframe(X,y):
   # # Train classifier
   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
   gnb = GaussianNB()
-
   # test classifier
   y_pred = gnb.fit(X_train, y_train).predict(X_test)
   print("Number of mislabeled points out of a total %d points : %d"
@@ -110,7 +118,7 @@ def get_prediction_same_dataframe(X,y):
   print("Naive Bayes score: ",gnb.score(X_test, y_test))
 
 
-def get_prediction(Xtest,ytest, Xtrain, ytrain):
+def get_prediction(Xtrain, ytrain, Xtest,ytest):
   clf = GaussianNB()
   y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
   return clf.score(Xtest,ytest)
@@ -137,7 +145,7 @@ def gather_stat_random(inputs):
   distance_class,dataframe,number_of_encounters = inputs
   X=[]
   y=[]
-  for i in range(200):
+  for i in range(500):
     X.append(get_N_random_encounter_stats(dataframe, distance_class, number_of_encounters))
     y.append(distance_class)
   return X,y
@@ -156,11 +164,29 @@ def reshape_array(X,y):
   return np.vstack(X), list(itertools.chain.from_iterable(y)) 
 
 # def class_population_accuracy(ytest,y_pred):
-    
 #   cm = confusion_matrix(ytest, y_pred)
 #   cm = (cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]).diagonal()
-
 #   return cm
+
+def get_timed_rows(dataframe,duration_of_encounters):
+  x = dataframe.sample(1)
+  A = x.mean_time.values.round(0) - duration_of_encounters
+  B = x.mean_time.values.round(0)
+  timed_rows = dataframe.loc[(dataframe.mean_time > A[0]) & (dataframe.mean_time < B[0])]
+#     display(timed_rows)
+  return timed_rows
+    
+def get_timed_encounter_stats(dataframe, distance_class, duration_of_encounters):
+  df_q = dataframe.query('type == ' + str(distance_class))   
+  df_q.reset_index(inplace=True, drop=True)     
+  Nrows = get_timed_rows(df_q,duration_of_encounters)
+  return np.ravel( Nrows[['mean_concentration','mean_ef','log_whiff','mean_ma']].values )
+
+def gather_stat_timed(dataframe, distance_class, duration_of_encounters,X,y):
+  for i in range(500):
+    X.append(get_timed_encounter_stats(dataframe, distance_class, duration_of_encounters))
+    y.append(distance_class)
+  return X,y
 
 def class_population_accuracy(ytest,y_pred):
   cm = confusion_matrix(ytest, y_pred)
@@ -176,67 +202,90 @@ def class_population_accuracy(ytest,y_pred):
     class_acc.append((tp+tn)/np.sum(cm))
   return (class_acc)
 
-# def main():
-#   # print(mp.current_process())
-#   windy,nwindy,forest=load_dataframe()
-#   desert = pd.concat([nwindy,windy])
-#   desert.reset_index(inplace=True, drop=True)
+def pca_analysis(Xtrain,Xtest):
+  #Train
+  # train = StandardScaler().fit_transform(Xtrain)
+  pca = PCA(n_components=2)
+  principalComponents1 = pca.fit_transform(Xtrain)
+  principalDf1=pd.DataFrame()
+  principalDf1 = pd.DataFrame(data = principalComponents1
+              , columns = ['principal1', 'principal2'])
+  X_train = np.reshape(np.vstack((principalDf1.principal1,principalDf1.principal2)),(1500,2))
 
-#   list_of_scores = []
-#   for i in range(1,51):   # i - number of features
-#     cl = [0,1,2]
-#     input1 = [[distance_class,desert,i] for distance_class in cl]
-#     input2 = [[distance_class,forest,i] for distance_class in [0,1]]
-#     pool = mp.Pool(processes=(mp.cpu_count()-1))
-#     Xtrain,ytrain=zip(*pool.map(gather_stat_consecutive, input1))
-#     Xtest,ytest=zip(*pool.map(gather_stat_consecutive, input2))
-#     # print(np.asarray(Xtrain).shape)
-#     pool.terminate()
-#     Xtest,ytest = reshape_array(Xtest,ytest)
-#     Xtrain,ytrain = reshape_array(Xtrain,ytrain)
-#     list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
-#     print(i)
-#   print('saving data')
-#   score_df = pd.DataFrame()
-#   score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
-#   score_df["accuracy"] = list_of_scores
-#   score_df.to_hdf(dir+'Classifier/Scores_desert_forest.h5', key='score_df', mode='w')
 
+  ##Test
+  # test=StandardScaler().fit_transform(Xtest)
+  principalComponents2=pca.fit_transform(Xtest)
+  principalDf2=pd.DataFrame()
+  principalDf2 = pd.DataFrame(data = principalComponents2
+              , columns = ['principal1', 'principal2'])
+  X_test = np.reshape(np.vstack((principalDf2.principal1,principalDf2.principal2)),(1500,2))
+  return X_train, X_test
 
 def main():
+  # print(mp.current_process())
   windy,nwindy,forest=load_dataframe()
   desert = pd.concat([nwindy,windy])
-  desert.reset_index(inplace=True, drop=True) 
+  desert.reset_index(inplace=True, drop=True)
 
-  accuracydf=pd.DataFrame()
-  bootstrap_length=25
-  iterator=1
-  for features in range(1,51):
-    accuracy = []
-    
-    for bootstrap in range(0,bootstrap_length):
+  list_of_scores = []
+  # for i in range(1,51):   # i - number of features
+  cl = [0,1,2]
+  input1 = [[distance_class,desert,15] for distance_class in cl]
+  input2 = [[distance_class,windy,15] for distance_class in cl]
+  pool = mp.Pool(processes=(mp.cpu_count()-1))
+  Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
+  Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
+  # print(np.asarray(Xtrain).shape)
+  pool.terminate()
+  Xtest,ytest = reshape_array(Xtest,ytest)
+  Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+  X_train,X_test = pca_analysis(Xtrain,Xtest)
+  print('Accuracy: ', get_prediction(X_train, ytrain,X_test,ytest))
   
-      input1 = [[distance_class,desert,features] for distance_class in [0,1,2]]
-      input2 = [[distance_class,nwindy,features] for distance_class in [0,1,2]]
-      pool = mp.Pool(processes=(mp.cpu_count()-1))
-      Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
-      Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
-      pool.terminate()
-      Xtest,ytest = reshape_array(Xtest,ytest)
-      Xtrain,ytrain = reshape_array(Xtrain,ytrain)
-      clf = GaussianNB()
-      y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
-      
-      
-      accuracy.append(class_population_accuracy(ytest,y_pred))
-    print('feature:',features,' complete fitting')
-    # accuracydf.loc[:,'feature_'+str(iterator)] =np.repeat(features,bootstrap_length)
-    accuracydf.loc[:,'class_0'+ str(iterator)]=[item[0] for item in accuracy]
-    accuracydf.loc[:,'class_1'+ str(iterator)]=[item[1] for item in accuracy]
-    accuracydf.loc[:,'class_2'+ str(iterator)]=[item[2] for item in accuracy]
-    iterator+=1
+  # list_of_scores.append(get_prediction(Xtest,ytest, Xtrain, ytrain))
+  # print(i)
+  print('saving data')
+  # score_df = pd.DataFrame()
+  # score_df["encounters"]=np.arange(1,len(list_of_scores)+1,1)
+  # score_df["accuracy"] = list_of_scores
+  # score_df.to_hdf(dir+'Classifier/Scores_desert_forest.h5', key='score_df', mode='w')
 
-  accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_nwindy_n.h5', key='accuracydf', mode='w')
+
+# def main():
+#   windy,nwindy,forest=load_dataframe()
+#   desert = pd.concat([nwindy,windy])
+#   desert.reset_index(inplace=True, drop=True) 
+
+#   accuracydf=pd.DataFrame()
+#   bootstrap_length=25
+#   iterator=1
+#   for features in range(1,51):
+#     accuracy = []
+    
+#     for bootstrap in range(0,bootstrap_length):
+  
+#       input1 = [[distance_class,desert,features] for distance_class in [0,1,2]]
+#       input2 = [[distance_class,nwindy,features] for distance_class in [0,1,2]]
+#       pool = mp.Pool(processes=(mp.cpu_count()-1))
+#       Xtrain,ytrain=zip(*pool.map(gather_stat_random, input1))
+#       Xtest,ytest=zip(*pool.map(gather_stat_random, input2))
+#       pool.terminate()
+#       Xtest,ytest = reshape_array(Xtest,ytest)
+#       Xtrain,ytrain = reshape_array(Xtrain,ytrain)
+#       clf = GaussianNB()
+#       y_pred = clf.fit(Xtrain,ytrain).predict(Xtest)
+      
+      
+#       accuracy.append(class_population_accuracy(ytest,y_pred))
+#     print('feature:',features,' complete fitting')
+#     # accuracydf.loc[:,'feature_'+str(iterator)] =np.repeat(features,bootstrap_length)
+#     accuracydf.loc[:,'class_0'+ str(iterator)]=[item[0] for item in accuracy]
+#     accuracydf.loc[:,'class_1'+ str(iterator)]=[item[1] for item in accuracy]
+#     accuracydf.loc[:,'class_2'+ str(iterator)]=[item[2] for item in accuracy]
+#     iterator+=1
+
+#   accuracydf.to_hdf(dir+'Classifier/accuracy_Scores_desert_nwindy_n.h5', key='accuracydf', mode='w')
   
   
 if __name__ == "__main__":
