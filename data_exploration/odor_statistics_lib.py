@@ -244,7 +244,16 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
       i+=1
   fdf['mean_ef'] = wfreq
   return wfreq
+def std_whiff(df,index,fdf):
 
+  i = 0
+  std_whiff = []
+  while i<len(index):
+      std_whiff.append(np.std(df.odor[index[i]])) 
+      i+=1
+  fdf['std_whiff']=std_whiff
+
+  
 def mean_conc(df,index,fdf):
   #Distance
   i = 0
@@ -265,19 +274,36 @@ def ma_fraction(df,window_size):
 
   lst = [0] * (len(df)-len(np.lib.stride_tricks.sliding_window_view(df.index,slider)))
   x = ifact + lst
-
   df['ma_fraction'] = x
 
-def mean_avg(df,index,fdf):
-  #Average Intermittency Factor
-  i = 0
-  ifr = []
-  dt = df.time[1]-df.time[0]
-  while i<len(index):
-      ifr.append(np.mean(df.ma_fraction[index[i]]))
-      i+=1
-  fdf['mean_ma'] = ifr
+# def mean_avg(df,index,fdf):
+#   #Average Intermittency Factor
+#   i = 0
+#   ifr = []
+#   dt = df.time[1]-df.time[0]
+#   while i<len(index):
+#       ifr.append(np.mean(df.ma_fraction[index[i]]))
+#       i+=1
+#   fdf['mean_ma'] = ifr
 
+def mean_avg(df,index,fdf):
+  indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=200)
+  ma = df.odor.rolling(window=indexer, min_periods=1).mean()
+
+  moving_avg = []
+  i=0
+  while i<len(index):
+      moving_avg.append(np.mean(ma[index[i]])) 
+      i+=1
+  fdf['whiff_ma']=moving_avg
+
+def mean_t(df,index,fdf):
+  i = 0
+  avg_time = []
+  while i<len(index):
+      avg_time.append(np.mean(df.time[index[i]])) 
+      i+=1
+  fdf['mean_time']=avg_time
 
 def wind_speed(df,index,fdf):
   
