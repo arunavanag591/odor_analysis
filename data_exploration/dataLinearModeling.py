@@ -69,11 +69,11 @@ dir = '~/DataAnalysis/data/Sprints/HighRes/'
 #   print('Done Loading Data')
 #   return windy,notwindy,forest
 
-def load_dataframe():
-    df_windy=(pd.read_hdf(dir+'Windy/WindyMASigned.h5'))
-    df_notwindy=(pd.read_hdf(dir+'NotWindy/NotWindyMASigned.h5'))
-    df_forest=(pd.read_hdf(dir+'Forest/ForestMASigned.h5'))
-    return df_windy,df_notwindy,df_forest
+# def load_dataframe():
+#     df_windy=(pd.read_hdf(dir+'Windy/WindyMASigned.h5'))
+#     df_notwindy=(pd.read_hdf(dir+'NotWindy/NotWindyMASigned.h5'))
+#     df_forest=(pd.read_hdf(dir+'Forest/ForestMASigned.h5'))
+#     return df_windy,df_notwindy,df_forest
 
 
 
