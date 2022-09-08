@@ -60,14 +60,14 @@ import multiprocessing as mp
 dir_save = '../../Figure/container_odor/'
 dir = '~/DataAnalysis/data/Sprints/HighRes/'
 
-# def load_dataframe():
+def load_dataframe():
  
-#   # dir_save = '../../../Research/Images/container_odor/'
-#   windy = pd.read_hdf(dir+'Windy/WindyStatsTime_std.h5')
-#   notwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsTime_std.h5')
-#   forest = pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
-#   print('Done Loading Data')
-#   return windy,notwindy,forest
+  # dir_save = '../../../Research/Images/container_odor/'
+  windy = pd.read_hdf(dir+'Windy/WindyStatsTime_std.h5')
+  notwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsTime_std.h5')
+  forest = pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
+  print('Done Loading Data')
+  return windy,notwindy,forest
 
 # def load_dataframe():
 #     df_windy=(pd.read_hdf(dir+'Windy/WindyMASigned.h5'))
@@ -119,7 +119,7 @@ def train_test(trainset,lookback_time,stat_to_test):
     Nrows_train = []
     Nrows_test = []
 
-    for distance_class in [0,1]:
+    for distance_class in [0,1,2]:
         Xtrain, ytrain, D_train,Nrows_train,mean_time_train = gather_stat_timed(trainset,distance_class,
                         lookback_time, Xtrain,ytrain,D_train,Nrows_train,
                         mean_time_train)
@@ -194,70 +194,89 @@ def bootstrap_anova(inputs):
 
     return rsquared_list, aic_list
 
-# def main():
-#     windy,nwindy,forest=load_dataframe()
-#     desert = pd.concat([nwindy,windy])
-#     desert.reset_index(inplace=True, drop=True) 
-
-#     column_names=['mc_min','mc_max','mc_mean','mc_std_dev','mc_k',
-#              'wf_min','wf_max','wf_mean','wf_std_dev','wf_k',
-#              'wd_min','wd_max','wd_mean','wd_std_dev','wd_k',
-#              'ma_min','ma_max','ma_mean','ma_std_dev','ma_k',
-#              'st_min','st_max','st_mean','st_std_dev','st_k']
-#     lookback_time = 10
-
-#     aic_df = pd.DataFrame(columns = column_names)
-#     rsquared_df= pd.DataFrame(columns = column_names)
-     
-#     inputs = [[forest,lookback_time,x] for x in column_names]
-#     pool = mp.Pool(processes=(mp.cpu_count()-1))
-#     rsquared_list,aic_list=zip(*pool.map(bootstrap_anova, inputs ))
-#     pool.terminate()
-#     print('Finished Calculating')
-#     for i in range (len(rsquared_list)):
-#         rsquared_df.iloc[:,i]=np.ravel(rsquared_list[i])
-#         aic_df.iloc[:,i]=np.ravel(aic_list[i])
-
-#     print('Saving DataFrame')
-#     rsquared_df.to_hdf(dir+'Forest/Forest_Rsquared.h5', key='rsquared_df', mode='w')
-#     aic_df.to_hdf(dir+'Forest/Forest_Aic.h5', key='aic_df', mode='w')
-
-def get_statistics(df,index,fdf):
-    osm.avg_distance(df,index,fdf)
-    osm.mean_conc(df,index,fdf)
-    osm.motion_statistics(df,index,fdf)
-    osm.whiff_blank_duration(df,index,fdf)
-    osm.trajectory_speed(df,index,fdf)
-    osm.encounter_frequency(df,index,fdf,1,2)
-    osm.mean_avg(df,index,fdf)
-    osm.mean_t(df,index,fdf)
+def remove_motion_effect(dataframe):
+    whiff_frequency=smf.ols(formula='mean_ef ~ (avg_perpendicular_encounter) + (avg_parallel_encounter)', data=dataframe).fit()
+    whiff_duration=smf.ols(formula='log_whiff~ (avg_perpendicular_encounter) + (avg_parallel_encounter)', data=dataframe).fit()
+    moving_avg = smf.ols(formula='whiff_ma ~ (avg_perpendicular_encounter) + (avg_parallel_encounter)', data=dataframe).fit()
+    mc = smf.ols(formula='mean_concentration ~ (avg_perpendicular_encounter) + (avg_parallel_encounter)', data=dataframe).fit()
+    sw = smf.ols(formula='std_whiff ~ (avg_perpendicular_encounter) + (avg_parallel_encounter)', data=dataframe).fit()
 
 
-def low_pass_filter(dataframe,cutoff):
-    fs=200
-    nyq=fs*0.5
-    cutoff_freq=cutoff
-
-    sos = signal.butter(2, cutoff_freq, 'low',fs=200, output='sos')
-    filtered = signal.sosfilt(sos, dataframe.odor)
-    dt = dataframe.master_time[1]-dataframe.master_time[0]
-
-    time = []
-    time.append(0)
-    for i in range(1,len(dataframe)):
-        time.append(time[i-1]+dt)   
-    dataframe['time'] = time
-
-    dataframe['filtered_odor']=filtered
-
-    np.seterr(divide = 'ignore') 
-    index = osm.get_index_filtered(dataframe)
-    fdf = pd.DataFrame()
-    get_statistics(dataframe,index,fdf)
-
-
-
+    dataframe['log_whiff']=whiff_duration.resid
+    dataframe['mean_ef'] = whiff_frequency.resid
+    dataframe['whiff_ma'] = moving_avg.resid
+    dataframe['mean_concentration'] = mc.resid
+    dataframe['std_whiff'] = sw.resid
+    # print(dataframe.keys())
     return dataframe
+
+def main():
+    windy,nwindy,forest=load_dataframe()
+    windy = remove_motion_effect(windy)
+    nwindy = remove_motion_effect(nwindy)
+    
+    desert = pd.concat([nwindy,windy])
+    desert.reset_index(inplace=True, drop=True) 
+
+    column_names=['mc_min','mc_max','mc_mean','mc_std_dev','mc_k',
+             'wf_min','wf_max','wf_mean','wf_std_dev','wf_k',
+             'wd_min','wd_max','wd_mean','wd_std_dev','wd_k',
+             'ma_min','ma_max','ma_mean','ma_std_dev','ma_k',
+             'st_min','st_max','st_mean','st_std_dev','st_k']
+    lookback_time = 10
+
+    aic_df = pd.DataFrame(columns = column_names)
+    rsquared_df= pd.DataFrame(columns = column_names)
+     
+    inputs = [[desert,lookback_time,x] for x in column_names]
+    pool = mp.Pool(processes=(mp.cpu_count()-1))
+    rsquared_list,aic_list=zip(*pool.map(bootstrap_anova, inputs ))
+    pool.terminate()
+    print('Finished Calculating')
+    for i in range (len(rsquared_list)):
+        rsquared_df.iloc[:,i]=np.ravel(rsquared_list[i])
+        aic_df.iloc[:,i]=np.ravel(aic_list[i])
+
+    print('Saving DataFrame')
+    rsquared_df.to_hdf(dir+'Desert/Desert_Rsquared_RM.h5', key='rsquared_df', mode='w')
+    aic_df.to_hdf(dir+'Desert/Desert_Aic_RM.h5', key='aic_df', mode='w')
+
+# def get_statistics(df,index,fdf):
+#     osm.avg_distance(df,index,fdf)
+#     osm.mean_conc(df,index,fdf)
+#     osm.motion_statistics(df,index,fdf)
+#     osm.whiff_blank_duration(df,index,fdf)
+#     osm.trajectory_speed(df,index,fdf)
+#     osm.encounter_frequency(df,index,fdf,1,2)
+#     osm.mean_avg(df,index,fdf)
+#     osm.mean_t(df,index,fdf)
+
+
+# def low_pass_filter(dataframe,cutoff):
+#     fs=200
+#     nyq=fs*0.5
+#     cutoff_freq=cutoff
+
+#     sos = signal.butter(2, cutoff_freq, 'low',fs=200, output='sos')
+#     filtered = signal.sosfilt(sos, dataframe.odor)
+#     dt = dataframe.master_time[1]-dataframe.master_time[0]
+
+#     time = []
+#     time.append(0)
+#     for i in range(1,len(dataframe)):
+#         time.append(time[i-1]+dt)   
+#     dataframe['time'] = time
+
+#     dataframe['filtered_odor']=filtered
+
+#     np.seterr(divide = 'ignore') 
+#     index = osm.get_index_filtered(dataframe)
+#     fdf = pd.DataFrame()
+#     get_statistics(dataframe,index,fdf)
+
+
+
+#     return dataframe
     
       
 
