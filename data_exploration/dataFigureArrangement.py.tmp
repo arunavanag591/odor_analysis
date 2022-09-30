@@ -23,12 +23,12 @@ import pylustrator
 
 # METHODS FIGURE 01 _  Desert
 
-# img1 = mpimg.imread('../../Figure/Paper/MethodFigure01/Setup.jpg')
-# img2 = mpimg.imread('../../Figure/Paper/MethodFigure01/SetupDesert.png')
-# img3 = mpimg.imread('../../Figure/Paper/MethodFigure01/DesertSensorSetup.jpeg')
-# img4 = mpimg.imread('../../Figure/Paper/MethodFigure01/OCHist.jpeg')
-# img5 = mpimg.imread('../../Figure/Paper/MethodFigure01/DesertWind.jpeg')
-# img6 = mpimg.imread('../../Figure/Paper/MethodFigure01/OdorTs.jpeg')
+# img1 = mpimg.imread('../../Figure/Paper/Setup.jpg')
+# img2 = mpimg.imread('../../Figure/Paper/SetupDesert.png')
+# img3 = mpimg.imread('../../Figure/Paper/DesertSensorSetup.jpeg')
+# img4 = mpimg.imread('../../Figure/Paper/OCHist.jpeg')
+# img5 = mpimg.imread('../../Figure/Paper/DesertWind.jpeg')
+# img6 = mpimg.imread('../../Figure/Paper/OdorTs.jpeg')
 # plt.figure(1)
 # plt.subplot(161)
 # plt.imshow(img1)
@@ -191,116 +191,114 @@ import pylustrator
 
 ### Methods Figure 02 - Forest
 
-pylustrator.start()
-img1 = mpimg.imread('../../Figure/Paper/MethodFigure02/JaleesaCropped.png')
-img2 = mpimg.imread('../../Figure/Paper/MethodFigure02/topview.png')
-img3 = mpimg.imread('../../Figure/Paper/MethodFigure02/ForestSetup.jpeg')
-img4 = mpimg.imread('../../Figure/Paper/MethodFigure02/ForestWind.jpeg')
-
-plt.figure(1)
-plt.subplot(141)
-plt.imshow(img1)
-plt.axis('off')
-
-plt.subplot(142)
-plt.imshow(img2)
-plt.axis('off')
-
-plt.subplot(143)
-plt.imshow(img3)
-plt.axis('off')
-
-plt.subplot(144)
-plt.imshow(img4)
-plt.axis('off')
-
-#% start: automatic generated code from pylustrator
-plt.figure(1).ax_dict = {ax.get_label(): ax for ax in plt.figure(1).axes}
-import matplotlib as mpl
-plt.figure(1).set_size_inches(7.620000/2.54, 10.160000/2.54, forward=True)
-plt.figure(1).axes[0].set_position([0.067270, 0.475485, 0.394586, 0.383436])
-plt.figure(1).axes[1].set_position([0.055259, 0.301181, 0.418387, 0.183071])
-plt.figure(1).axes[2].set_position([0.520142, 0.651518, 0.417122, 0.204577])
-plt.figure(1).axes[3].set_position([0.487318, 0.292382, 0.496981, 0.333336])
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[0].new
-plt.figure(1).texts[0].set_fontsize(5)
-plt.figure(1).texts[0].set_position([0.497089, 0.735339])
-plt.figure(1).texts[0].set_rotation(90.0)
-plt.figure(1).texts[0].set_text("Latitude, m")
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[1].new
-plt.figure(1).texts[1].set_fontsize(5)
-plt.figure(1).texts[1].set_position([0.698196, 0.636660])
-plt.figure(1).texts[1].set_text("Longitude, m")
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[2].new
-plt.figure(1).texts[2].set_fontsize(7)
-plt.figure(1).texts[2].set_position([0.028903, 0.828660])
-plt.figure(1).texts[2].set_rotation(0.0)
-plt.figure(1).texts[2].set_text("A")
-plt.figure(1).texts[2].set_weight("bold")
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[3].new
-plt.figure(1).texts[3].set_fontsize(7)
-plt.figure(1).texts[3].set_position([0.028903, 0.456332])
-plt.figure(1).texts[3].set_text("B")
-plt.figure(1).texts[3].set_weight("bold")
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[4].new
-plt.figure(1).texts[4].set_fontsize(7)
-plt.figure(1).texts[4].set_position([0.497089, 0.826476])
-plt.figure(1).texts[4].set_text("C")
-plt.figure(1).texts[4].set_weight("bold")
-plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[5].new
-plt.figure(1).texts[5].set_fontsize(7)
-plt.figure(1).texts[5].set_position([0.497089, 0.625546])
-plt.figure(1).texts[5].set_text("D")
-plt.figure(1).texts[5].set_weight("bold")
-#% end: automatic generated code from pylustrator
-# plt.show()
-plt.figure(1).savefig('../../Figure/Paper/MethodsFigure02.png', dpi=300, bbox_inches = "tight")
-
-
-
-### Methods Figure 03 - Streakline
-
 # pylustrator.start()
-# img1 = mpimg.imread('../../Figure/Paper/StreaklineSnapshots/streakline.jpg')
-# img2 = mpimg.imread('../../Figure/Paper/StreaklineSnapshots/axes.png')
-
+# img1 = mpimg.imread('../../Figure/Paper/JaleesaCropped.png')
+# img2 = mpimg.imread('../../Figure/Paper/topview.png')
+# img3 = mpimg.imread('../../Figure/Paper/ForestSetup.jpeg')
+# img4 = mpimg.imread('../../Figure/Paper/ForestWind.jpeg')
 
 # plt.figure(1)
-# plt.subplot(121)
+# plt.subplot(141)
 # plt.imshow(img1)
 # plt.axis('off')
 
-# plt.subplot(122)
+# plt.subplot(142)
 # plt.imshow(img2)
+# plt.axis('off')
+
+# plt.subplot(143)
+# plt.imshow(img3)
+# plt.axis('off')
+
+# plt.subplot(144)
+# plt.imshow(img4)
 # plt.axis('off')
 
 # #% start: automatic generated code from pylustrator
 # plt.figure(1).ax_dict = {ax.get_label(): ax for ax in plt.figure(1).axes}
 # import matplotlib as mpl
-# plt.figure(1).set_size_inches(7.620000/2.54, 5.080000/2.54, forward=True)
-# plt.figure(1).axes[0].set_position([0.033370, 0.155169, 0.425078, 0.748647])
-# plt.figure(1).axes[1].set_position([0.432589, 0.156435, 0.583985, 0.726834])
+# plt.figure(1).set_size_inches(7.620000/2.54, 10.160000/2.54, forward=True)
+# plt.figure(1).axes[0].set_position([0.067270, 0.475485, 0.394586, 0.383436])
+# plt.figure(1).axes[1].set_position([0.055259, 0.301181, 0.418387, 0.183071])
+# plt.figure(1).axes[2].set_position([0.520142, 0.651518, 0.417122, 0.204577])
+# plt.figure(1).axes[3].set_position([0.487318, 0.292382, 0.496981, 0.333336])
 # plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[0].new
-# plt.figure(1).texts[0].set_fontsize(2.7)
-# plt.figure(1).texts[0].set_position([0.019651, 0.492557])
+# plt.figure(1).texts[0].set_fontsize(3)
+# plt.figure(1).texts[0].set_position([0.497089, 0.735339])
 # plt.figure(1).texts[0].set_rotation(90.0)
 # plt.figure(1).texts[0].set_text("Latitude, m")
 # plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[1].new
-# plt.figure(1).texts[1].set_fontsize(2.7)
-# plt.figure(1).texts[1].set_ha("center")
-# plt.figure(1).texts[1].set_position([0.245407, 0.197571])
+# plt.figure(1).texts[1].set_fontsize(3)
+# plt.figure(1).texts[1].set_position([0.698196, 0.636660])
 # plt.figure(1).texts[1].set_text("Longitude, m")
 # plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[2].new
 # plt.figure(1).texts[2].set_fontsize(7)
-# plt.figure(1).texts[2].set_position([0.019651, 0.888646])
+# plt.figure(1).texts[2].set_position([0.028903, 0.828660])
+# plt.figure(1).texts[2].set_rotation(0.0)
 # plt.figure(1).texts[2].set_text("A")
 # plt.figure(1).texts[2].set_weight("bold")
 # plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[3].new
 # plt.figure(1).texts[3].set_fontsize(7)
-# plt.figure(1).texts[3].set_position([0.460699, 0.888646])
+# plt.figure(1).texts[3].set_position([0.028903, 0.456332])
 # plt.figure(1).texts[3].set_text("B")
 # plt.figure(1).texts[3].set_weight("bold")
+# plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[4].new
+# plt.figure(1).texts[4].set_fontsize(7)
+# plt.figure(1).texts[4].set_position([0.497089, 0.826476])
+# plt.figure(1).texts[4].set_text("C")
+# plt.figure(1).texts[4].set_weight("bold")
+# plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[5].new
+# plt.figure(1).texts[5].set_fontsize(7)
+# plt.figure(1).texts[5].set_position([0.497089, 0.625546])
+# plt.figure(1).texts[5].set_text("D")
+# plt.figure(1).texts[5].set_weight("bold")
 # #% end: automatic generated code from pylustrator
 # # plt.show()
+# plt.figure(1).savefig('../../Figure/Paper/MethodsFigure02.png', dpi=300, bbox_inches = "tight")
 
-# plt.figure(1).savefig('../../Figure/Paper/Streakline.png', dpi=300, bbox_inches = "tight")
+
+
+### Methods Figure 03 - Streakline
+
+pylustrator.start()
+img1 = mpimg.imread('../../Figure/Paper/streakline.jpg')
+img2 = mpimg.imread('../../Figure/Paper/axes.png')
+
+
+plt.figure(1)
+plt.subplot(121)
+plt.imshow(img1)
+plt.axis('off')
+
+plt.subplot(122)
+plt.imshow(img2)
+plt.axis('off')
+
+#% start: automatic generated code from pylustrator
+plt.figure(1).ax_dict = {ax.get_label(): ax for ax in plt.figure(1).axes}
+import matplotlib as mpl
+plt.figure(1).set_size_inches(7.620000/2.54, 5.080000/2.54, forward=True)
+plt.figure(1).axes[0].set_position([0.033370, 0.155169, 0.425078, 0.748647])
+plt.figure(1).axes[1].set_position([0.432589, 0.156435, 0.583985, 0.726834])
+plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[0].new
+plt.figure(1).texts[0].set_fontsize(3)
+plt.figure(1).texts[0].set_position([0.019651, 0.492557])
+plt.figure(1).texts[0].set_rotation(90.0)
+plt.figure(1).texts[0].set_text("Latitude, m")
+plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[1].new
+plt.figure(1).texts[1].set_fontsize(3)
+plt.figure(1).texts[1].set_ha("center")
+plt.figure(1).texts[1].set_position([0.245407, 0.197571])
+plt.figure(1).texts[1].set_text("Longitude, m")
+plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[2].new
+plt.figure(1).texts[2].set_fontsize(7)
+plt.figure(1).texts[2].set_position([0.019651, 0.888646])
+plt.figure(1).texts[2].set_text("A")
+plt.figure(1).texts[2].set_weight("bold")
+plt.figure(1).text(0.5, 0.5, 'New Text', transform=plt.figure(1).transFigure)  # id=plt.figure(1).texts[3].new
+plt.figure(1).texts[3].set_fontsize(7)
+plt.figure(1).texts[3].set_position([0.460699, 0.888646])
+plt.figure(1).texts[3].set_text("B")
+plt.figure(1).texts[3].set_weight("bold")
+#% end: automatic generated code from pylustrator
+plt.show()
