@@ -225,7 +225,7 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
 
   ## encounter frequency
   def exp_ker(t, tau):
-    return np.exp(-t/tau)/tau
+    return np.exp(-t/tau)
 
   dt = df.time[1]-df.time[0]
   t = np.arange(0,kernel_size,dt)
