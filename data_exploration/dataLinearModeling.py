@@ -212,8 +212,8 @@ def remove_motion_effect(dataframe):
 
 def main():
     windy,nwindy,forest=load_dataframe()
-    windy = remove_motion_effect(windy)
-    nwindy = remove_motion_effect(nwindy)
+    # windy = remove_motion_effect(windy)
+    # nwindy = remove_motion_effect(nwindy)
     
     desert = pd.concat([nwindy,windy])
     desert.reset_index(inplace=True, drop=True) 
@@ -238,8 +238,8 @@ def main():
         aic_df.iloc[:,i]=np.ravel(aic_list[i])
 
     print('Saving DataFrame')
-    rsquared_df.to_hdf(dir+'Desert/Desert_Rsquared_RM.h5', key='rsquared_df', mode='w')
-    aic_df.to_hdf(dir+'Desert/Desert_Aic_RM.h5', key='aic_df', mode='w')
+    rsquared_df.to_hdf(dir+'Desert/Desert_Rsquared_.h5', key='rsquared_df', mode='w')
+    aic_df.to_hdf(dir+'Desert/Desert_Aic_.h5', key='aic_df', mode='w')
 
 # def get_statistics(df,index,fdf):
 #     osm.avg_distance(df,index,fdf)
