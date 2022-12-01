@@ -244,6 +244,8 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
       i+=1
   fdf['mean_ef'] = wfreq
   return wfreq
+
+  
 def std_whiff(df,index,fdf):
 
   i = 0

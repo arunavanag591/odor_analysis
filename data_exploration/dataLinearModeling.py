@@ -228,7 +228,7 @@ def main():
     aic_df = pd.DataFrame(columns = column_names)
     rsquared_df= pd.DataFrame(columns = column_names)
      
-    inputs = [[desert,lookback_time,x] for x in column_names]
+    inputs = [[windy,lookback_time,x] for x in column_names]
     pool = mp.Pool(processes=(mp.cpu_count()-1))
     rsquared_list,aic_list=zip(*pool.map(bootstrap_anova, inputs ))
     pool.terminate()
@@ -238,8 +238,8 @@ def main():
         aic_df.iloc[:,i]=np.ravel(aic_list[i])
 
     print('Saving DataFrame')
-    rsquared_df.to_hdf(dir+'Desert/Desert_Rsquared_.h5', key='rsquared_df', mode='w')
-    aic_df.to_hdf(dir+'Desert/Desert_Aic_.h5', key='aic_df', mode='w')
+    rsquared_df.to_hdf(dir+'Desert/HWS_Rsquared.h5', key='rsquared_df', mode='w')
+    aic_df.to_hdf(dir+'Desert/HWS_Aic.h5', key='aic_df', mode='w')
 
 # def get_statistics(df,index,fdf):
 #     osm.avg_distance(df,index,fdf)
