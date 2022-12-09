@@ -109,29 +109,17 @@ def gather_stat_timed(dataframe, distance_class, duration_of_encounters,X,y,D,N,
 def train_test(trainset,lookback_time,stat_to_test):
 
     D_train=[]
-    D_test=[]
     mean_time_train=[]
-    mean_time_test=[]
-    Xtest = []
-    ytest = []
     Xtrain = []
     ytrain = []
     Nrows_train = []
-    Nrows_test = []
+ 
 
     for distance_class in [0,1,2]:
         Xtrain, ytrain, D_train,Nrows_train,mean_time_train = gather_stat_timed(trainset,distance_class,
                         lookback_time, Xtrain,ytrain,D_train,Nrows_train,
                         mean_time_train)
 
-
-    # for distance_class in [0,1]:
-    #     Xtest,ytest,D_test,Nrows_test,mean_time_test = gather_stat_timed(testset,distance_class,
-    #                     lookback_time, Xtest,ytest,D_test,Nrows_test,
-    #                     mean_time_test)    
-
-    ## Done separately because Forest dataset has two classes
-    ## Training set
     cols=['mc_min','mc_max','mc_mean','mc_std_dev','mc_k',
              'wf_min','wf_max','wf_mean','wf_std_dev','wf_k',
              'wd_min','wd_max','wd_mean','wd_std_dev','wd_k',
@@ -150,28 +138,12 @@ def train_test(trainset,lookback_time,stat_to_test):
                 X.append(calc_val(Xtrain[i][j]))
             traindf.loc[i]=np.ravel(X)
 
-    # ## Test set
-    # testdf=pd.DataFrame(columns = cols)
-    # c2=[]
-    # for i in range(len(Xtest)):
-    #     if(np.size(Xtest[i])==0):
-    #         c2.append(i)
-    #         continue
-    #     else:
-    #         Y=[]
-    #         for j in range(len(Xtest[i])):
-    #             Y.append(calc_val(Xtest[i][j]))
-    #         testdf.loc[i]=np.ravel(Y)
 
     traindf['distance']=np.delete(D_train, c1)
     traindf['mean_whiff_time'] = np.delete(mean_time_train, c1)
-    # testdf['distance']=np.delete(D_test,c2)
-    # testdf['mean_whiff_time'] = np.delete(mean_time_test, c2)
 
     scaler = MinMaxScaler().fit(traindf[traindf.columns])
     traindf[traindf.columns]=scaler.transform(traindf[traindf.columns])
-    # testdf[testdf.columns]=scaler.transform(testdf[testdf.columns])
-
 
     x = traindf[stat_to_test]
     distance = smf.ols(formula='distance~x',data=traindf).fit()
@@ -187,7 +159,7 @@ def bootstrap_anova(inputs):
     
     aic_list = []
     rsquared_list=[]
-    for y in range(0,50):
+    for y in range(0,20):
         rsquared,aic = train_test(trainset,lookback_time,stat_to_test)
         rsquared_list.append(rsquared)
         aic_list.append(aic)
@@ -215,7 +187,7 @@ def main():
     # windy = remove_motion_effect(windy)
     # nwindy = remove_motion_effect(nwindy)
     
-    desert = pd.concat([nwindy,windy])
+    desert = pd.concat([nwindy,windy,forest])
     desert.reset_index(inplace=True, drop=True) 
 
     column_names=['mc_min','mc_max','mc_mean','mc_std_dev','mc_k',
@@ -223,12 +195,12 @@ def main():
              'wd_min','wd_max','wd_mean','wd_std_dev','wd_k',
              'ma_min','ma_max','ma_mean','ma_std_dev','ma_k',
              'st_min','st_max','st_mean','st_std_dev','st_k']
-    lookback_time = 10
+    lookback_time = 20
 
     aic_df = pd.DataFrame(columns = column_names)
     rsquared_df= pd.DataFrame(columns = column_names)
      
-    inputs = [[windy,lookback_time,x] for x in column_names]
+    inputs = [[desert,lookback_time,x] for x in column_names]
     pool = mp.Pool(processes=(mp.cpu_count()-1))
     rsquared_list,aic_list=zip(*pool.map(bootstrap_anova, inputs ))
     pool.terminate()
@@ -238,8 +210,8 @@ def main():
         aic_df.iloc[:,i]=np.ravel(aic_list[i])
 
     print('Saving DataFrame')
-    rsquared_df.to_hdf(dir+'Desert/HWS_Rsquared.h5', key='rsquared_df', mode='w')
-    aic_df.to_hdf(dir+'Desert/HWS_Aic.h5', key='aic_df', mode='w')
+    rsquared_df.to_hdf(dir+'R2_AIC/TimeTest/all_Rsquared_20.h5', key='rsquared_df', mode='w')
+    # aic_df.to_hdf(dir+'R2_AIC/TimeTest/all_Aic.h5', key='aic_df', mode='w')
 
 # def get_statistics(df,index,fdf):
 #     osm.avg_distance(df,index,fdf)
