@@ -60,22 +60,26 @@ import multiprocessing as mp
 dir_save = '../../Figure/container_odor/'
 dir = '~/DataAnalysis/data/Sprints/HighRes/'
 
+def create_class_column_forest(dataframe):
+    dataframe.loc[dataframe.avg_dist_from_source < 5, 'type'] = 0
+    dataframe.loc[(dataframe.avg_dist_from_source >= 5)  & (dataframe.avg_dist_from_source < 10), 'type'] = 1
+    dataframe.loc[dataframe.avg_dist_from_source >= 10, 'type'] = 2
+    return dataframe
+
+def create_class_column(dataframe):
+    dataframe.loc[dataframe.avg_dist_from_source < 5, 'type'] = 0
+    dataframe.loc[(dataframe.avg_dist_from_source >= 5)  & (dataframe.avg_dist_from_source < 30), 'type'] = 1
+    dataframe.loc[dataframe.avg_dist_from_source >= 30, 'type'] = 2
+    return dataframe
+
 def load_dataframe():
  
   # dir_save = '../../../Research/Images/container_odor/'
-  windy = pd.read_hdf(dir+'Windy/WindyStatsTime_std.h5')
-  notwindy = pd.read_hdf(dir+'NotWindy/NotWindyStatsTime_std.h5')
-  forest = pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
+  windy = create_class_column(pd.read_hdf(dir+'Windy/WindyMASigned_6.h5'))
+  notwindy = create_class_column(pd.read_hdf(dir+'NotWindy/NotWindyMASigned_6.h5'))
+  forest = create_class_column_forest(pd.read_hdf(dir+'Forest/ForestMASigned_6.h5'))
   print('Done Loading Data')
   return windy,notwindy,forest
-
-# def load_dataframe():
-#     df_windy=(pd.read_hdf(dir+'Windy/WindyMASigned.h5'))
-#     df_notwindy=(pd.read_hdf(dir+'NotWindy/NotWindyMASigned.h5'))
-#     df_forest=(pd.read_hdf(dir+'Forest/ForestMASigned.h5'))
-#     return df_windy,df_notwindy,df_forest
-
-
 
 def get_timed_rows(dataframe,duration_of_encounters):
     x = dataframe.sample(1)
@@ -187,7 +191,7 @@ def main():
     # windy = remove_motion_effect(windy)
     # nwindy = remove_motion_effect(nwindy)
     
-    desert = pd.concat([nwindy,windy,forest])
+    desert = pd.concat([windy])
     desert.reset_index(inplace=True, drop=True) 
 
     column_names=['mc_min','mc_max','mc_mean','mc_std_dev','mc_k',
@@ -195,7 +199,7 @@ def main():
              'wd_min','wd_max','wd_mean','wd_std_dev','wd_k',
              'ma_min','ma_max','ma_mean','ma_std_dev','ma_k',
              'st_min','st_max','st_mean','st_std_dev','st_k']
-    lookback_time = 20
+    lookback_time = 10
 
     aic_df = pd.DataFrame(columns = column_names)
     rsquared_df= pd.DataFrame(columns = column_names)
@@ -210,7 +214,7 @@ def main():
         aic_df.iloc[:,i]=np.ravel(aic_list[i])
 
     print('Saving DataFrame')
-    rsquared_df.to_hdf(dir+'R2_AIC/TimeTest/all_Rsquared_20.h5', key='rsquared_df', mode='w')
+    rsquared_df.to_hdf(dir+'R2_AIC/TimeTest/hws_Rsquared_6v.h5', key='rsquared_df', mode='w')
     # aic_df.to_hdf(dir+'R2_AIC/TimeTest/all_Aic.h5', key='aic_df', mode='w')
 
 # def get_statistics(df,index,fdf):

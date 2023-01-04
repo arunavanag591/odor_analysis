@@ -291,7 +291,7 @@ def ma_fraction(df,window_size):
 def mean_avg(df,index,fdf):
   indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=200)
   ma = df.odor.rolling(window=indexer, min_periods=1).mean()
-
+  df['ma_inter']=ma
   moving_avg = []
   i=0
   while i<len(index):
