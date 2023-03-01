@@ -225,7 +225,7 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
 
   ## encounter frequency
   def exp_ker(t, tau):
-    return np.exp(-t/tau)
+    return np.exp(-t/tau)/tau
 
   dt = df.time[1]-df.time[0]
   t = np.arange(0,kernel_size,dt)
@@ -245,6 +245,17 @@ def encounter_frequency(df,index,fdf,kernel_size,tau):
   fdf['mean_ef'] = wfreq
   return wfreq
 
+  
+def std_whiff(df,index,fdf):
+
+  i = 0
+  std_whiff = []
+  while i<len(index):
+      std_whiff.append(np.std(df.odor[index[i]])) 
+      i+=1
+  fdf['std_whiff']=std_whiff
+
+  
 def mean_conc(df,index,fdf):
   #Distance
   i = 0
@@ -265,19 +276,36 @@ def ma_fraction(df,window_size):
 
   lst = [0] * (len(df)-len(np.lib.stride_tricks.sliding_window_view(df.index,slider)))
   x = ifact + lst
-
   df['ma_fraction'] = x
 
-def mean_avg(df,index,fdf):
-  #Average Intermittency Factor
-  i = 0
-  ifr = []
-  dt = df.time[1]-df.time[0]
-  while i<len(index):
-      ifr.append(np.mean(df.ma_fraction[index[i]]))
-      i+=1
-  fdf['mean_ma'] = ifr
+# def mean_avg(df,index,fdf):
+#   #Average Intermittency Factor
+#   i = 0
+#   ifr = []
+#   dt = df.time[1]-df.time[0]
+#   while i<len(index):
+#       ifr.append(np.mean(df.ma_fraction[index[i]]))
+#       i+=1
+#   fdf['mean_ma'] = ifr
 
+def mean_avg(df,index,fdf):
+  indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=200)
+  ma = df.odor.rolling(window=indexer, min_periods=1).mean()
+  df['ma_inter']=ma
+  moving_avg = []
+  i=0
+  while i<len(index):
+      moving_avg.append(np.mean(ma[index[i]])) 
+      i+=1
+  fdf['whiff_ma']=moving_avg
+
+def mean_t(df,index,fdf):
+  i = 0
+  avg_time = []
+  while i<len(index):
+      avg_time.append(np.mean(df.time[index[i]])) 
+      i+=1
+  fdf['mean_time']=avg_time
 
 def wind_speed(df,index,fdf):
   
@@ -300,72 +328,4 @@ def wind_speed(df,index,fdf):
         wind_speed_intermittency.append(0)
         i+=1
   fdf['wind_speed_intermittency'] = wind_speed_intermittency
-
-def sort_by_distance(fdf):
-  fdf = fdf.sort_values(by=['avg_dist_from_source'])
-  fdf.reset_index(inplace=True, drop=True) 
-
-  a = np.array(np.where(fdf.avg_dist_from_source <=10))
-  b = np.array(np.where((fdf.avg_dist_from_source > 10) & (fdf.avg_dist_from_source <=30)))
-  c = np.array(np.where(fdf.avg_dist_from_source > 30))
-  fdf1 = pd.DataFrame()
-  fdf2 = pd.DataFrame()
-  fdf3 = pd.DataFrame()
-
-  fdf1['distance_from_source_bin'] = np.repeat('0-10(m)',a.flatten().size)
-  fdf2['distance_from_source_bin'] = np.repeat('10-30(m)',b.flatten().size)
-  fdf3['distance_from_source_bin'] = np.repeat('>30(m)',c.flatten().size)
-  fdf['distance_from_source_bin'] = pd.concat([fdf1,fdf2,fdf3], ignore_index=True)
-  # 
-  p1 = [0]*(a.flatten().size)
-  p2 = [1]*(b.flatten().size)
-  p3 = [2]*(c.flatten().size)
-  p = p1+p2+p3
-  fdf['bins_distance']=p
-
-  return fdf
-  
-def sort_by_distance_forest(fdf):
-  fdf = fdf.sort_values(by=['avg_dist_from_source'])
-  fdf.reset_index(inplace=True, drop=True) 
-
-  a = np.array(np.where(fdf.avg_dist_from_source <=10))
-  b = np.array(np.where((fdf.avg_dist_from_source > 10) & (fdf.avg_dist_from_source <=20)))
-  c = np.array(np.where(fdf.avg_dist_from_source > 20))
-
-  fdf1 = pd.DataFrame()
-  fdf2 = pd.DataFrame()
-  fdf3 = pd.DataFrame()
-
-  fdf1['distance_from_source_bin'] = np.repeat('0-10(m)',a.flatten().size)
-  fdf2['distance_from_source_bin'] = np.repeat('10-20(m)',b.flatten().size)
-  fdf3['distance_from_source_bin'] = np.repeat('>20(m)',c.flatten().size)
-  
-  fdf['distance_from_source_bin'] = pd.concat([fdf1,fdf2,fdf3], ignore_index=True)
-  # 
-  p1 = [0]*(a.flatten().size)
-  p2 = [1]*(b.flatten().size)
-  p3 = [2]*(c.flatten().size)
-
-  p = p1+p2+p3
-  fdf['bins_distance']=p
-
-  return fdf
-
-def get_distance_statsmodel(fdf):
-  pd.set_option('use_inf_as_na', True) ## for excluding negative infinity and NaN values 
-  encounter_freq=smf.ols(formula='np.log10(mean_encounter_frequency) ~ np.abs(fdf.avg_perpendicular_encounter) + np.abs(fdf.avg_parallel_encounter)', data=fdf).fit()
-  whiffs=smf.ols(formula='log_whiff~ np.abs(fdf.avg_perpendicular_encounter) + np.abs(fdf.avg_parallel_encounter)', data=fdf).fit()
-  blanks=smf.ols(formula='log_blank ~ np.abs(fdf.avg_perpendicular_intermittency) + np.abs(fdf.avg_parallel_intermittency)', data=fdf).fit()
-  movingavg = smf.ols(formula='mean_ma ~ np.abs(fdf.avg_perpendicular_intermittency) + np.abs(fdf.avg_parallel_intermittency)', data=fdf).fit()
-
-  fdf['encounterfreq_resid']=encounter_freq.resid
-  fdf['whiffs_resid'] = whiffs.resid
-  fdf['blanks_resid'] = blanks.resid
-  fdf['movingavg_resid'] = movingavg.resid
-
-  distance=smf.ols(formula='avg_dist_from_source ~ whiffs_resid + movingavg_resid+ encounterfreq_resid + blanks_resid', data=fdf).fit()
-  
-  return distance
-
 
