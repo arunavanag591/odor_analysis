@@ -107,10 +107,13 @@ def calc_val(X):
     return np.ravel([np.min(X),np.max(X),np.mean(X),np.std(X),kurtosis(X)])
 
 ## load dataframes
-df_windy=pd.read_hdf(dir+'Windy/WindyStatsTime_std.h5')
-df_notwindy=pd.read_hdf(dir+'NotWindy/NotWindyStatsTime_std.h5')
-df_forest=pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
+# df_windy=pd.read_hdf(dir+'Windy/WindyStatsTime_std.h5')
+# df_notwindy=pd.read_hdf(dir+'NotWindy/NotWindyStatsTime_std.h5')
+# df_forest=pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
 
+df_windy=pd.read_hdf(dir+'LookbackTimeAnalysis/dataframes/HWS90.h5')
+df_notwindy=pd.read_hdf(dir+'LookbackTimeAnalysis/dataframes/LWS90.h5')
+df_forest=pd.read_hdf(dir+'LookbackTimeAnalysis/dataframes/Forest90.h5')
 
 
 ## combine dataframes
@@ -119,7 +122,8 @@ df_forest=pd.read_hdf(dir+'Forest/ForestStatsTime_std.h5')
 
 def process(_ltime):
 
-    trainset= df_forest.copy()
+    trainset= create_class_column(df_windy.copy())
+
     lookback_time=_ltime
 
     ## calculate statistics
@@ -130,7 +134,7 @@ def process(_ltime):
     ytrain = []
     Nrows_train = []
 
-    for distance_class in [0,1]:
+    for distance_class in [0,1,2]:
         Xtrain, ytrain, D_train,Nrows_train,mean_time_train = gather_stat_timed(trainset,distance_class,
                       lookback_time, Xtrain,ytrain,D_train,Nrows_train,
                       mean_time_train)
@@ -155,6 +159,11 @@ def process(_ltime):
     traindf['distance']=np.delete(D_train, c1)
     
     distance=smf.ols(formula=""" distance ~ mc_mean + ma_std_dev + ma_max + wd_std_dev""", data=traindf).fit()
+    # distance=smf.ols(formula=""" distance ~ mc_min+mc_max+mc_mean+mc_std_dev+mc_k+
+    #                             wf_min+wf_max+wf_mean+wf_std_dev+wf_k+ wd_min+wd_max+
+    #                             wd_mean+wd_std_dev+wd_k+ma_min+ma_max+ma_mean+
+    #                             ma_std_dev+ma_k+ st_min+st_max+st_mean+st_std_dev+
+    #                             st_k""", data=traindf).fit()
 
     return distance.rsquared    
 
@@ -167,6 +176,6 @@ if __name__ == "__main__":
 
     print('done')
     lpdf = pd.DataFrame()
-    lpdf['lt_time'] = lookback_time
+    lpdf['time'] = lookback_time
     lpdf['rsquared'] = lt_rsquared
-    lpdf.to_hdf(dir+'LookbackTimeAnalysis/ForestLT.h5', key='lpdf', mode='w')
+    lpdf.to_hdf(dir+'LookbackTimeAnalysis/HWSLTaic.h5', key='lpdf', mode='w')
