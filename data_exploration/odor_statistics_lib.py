@@ -6,9 +6,11 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.TimeSeries = pd.Series 
 
+from itertools import groupby
+from operator import itemgetter
+
 #math
 import numpy as np
-import math
 from scipy.spatial.distance import cdist
 from scipy import signal
 import statsmodels.api as sm
@@ -35,11 +37,10 @@ def get_index_simulated(df):
   idx = []
   df.odorsim = df.odorsim*10
   for i in range(len(df.odorsim)):
-      if (df.odorsim[i]>4.5):
+      if (df.odorsim[i]>1):
           idx.append(df.index[i])
 
-  from itertools import groupby
-  from operator import itemgetter
+
   index = []
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
@@ -53,8 +54,6 @@ def get_index_filtered(df):
       if (df.filtered_odor[i]>thres):
           idx.append(df.index[i])
 
-  from itertools import groupby
-  from operator import itemgetter
   index = [ ]
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
@@ -67,9 +66,6 @@ def get_index(df):
   for i in range(len(df.odor)):
       if (df.odor[i]>4.5):
           idx.append(df.index[i])
-
-  from itertools import groupby
-  from operator import itemgetter
   index = []
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
@@ -82,8 +78,6 @@ def get_index_forest(df):
       if (df.odor[i]>5):
           idx.append(df.index[i])
 
-  from itertools import groupby
-  from operator import itemgetter
   index = []
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
