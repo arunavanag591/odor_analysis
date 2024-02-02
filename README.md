@@ -28,7 +28,7 @@ distance
 3. [Figure S3](/data_exploration/figure/Supplemental/NormalityAnalysis.ipynb) : Normality analysis of the datasets
 4. [Figure S4](/data_exploration/figure/Supplemental/windlagfigure.ipynb) : Range of wind characteristics across our datasets 
 5. [Figure S5](/data_exploration/figure/Supplemental/timeSpent.ipynb) : Time spent - vs number of encounters
-6. [Figure S6](/data_exploration/figure/Supplemental/whiffStatisticsIndividualDatasets.ipynb) : 
+6. [Figure S6](/data_exploration/figure/Supplemental/whiffStatisticsIndividualDatasets.ipynb) : Individual whiff statistics without a lookback time 
 7. [Figure S7](/data_exploration/figure/Supplemental/mc_wsd.ipynb) : Mean whiff concentration vs mean whiff standard deviation
 8. [Figure S8](/data_exploration/figure/Supplemental/figureAicR2layout.ipynb) : Bootstrapped R-squared and AIC analysis
 9. [Figure S9](/data_exploration/figure/Supplemental/windAicParamsAnalysis.ipynb) : AIC filtered coefficiecnts across various wind scenarios
