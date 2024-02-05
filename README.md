@@ -3,11 +3,23 @@ This repository consist of the data analysis done for Odor Tracking experiment.
 
 Preprint: ["Odor source location can be predicted from a time-history of odor statistics for a large-scale outdoor plume"](https://www.biorxiv.org/content/10.1101/2023.07.20.549973v1)
 
+## Dependencies
+
+To visualize the below figures and see the results and calculations, you will need to install the following:
+1. [FlyPlotLib](https://github.com/florisvb/FlyPlotLib)
+2. [FigureFirst](https://github.com/FlyRanch/figurefirst)
+3. [Inkscape 1.2](https://inkscape.org/release/inkscape-1.2/)
+
+Follow the setup of [FigureFirst](https://github.com/FlyRanch/figurefirst) into inkscape.
+
+other than these please check the section [Setup Section](#setup-environment) for the python libraries required
+
+ - Please download the folders 'data' and 'figure' and place it inside the the folder [data_exploration](/data_exploration/), this should allow you to run all the scripts under the figures section.
 
 
 ## Figures
 
-Data will be available in data dryad to run the results in the paper. Below are interactive notebooks, which can be used using Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst) 
+Data will be available in data dryad to run the results in the paper. Below are interactive notebooks, which can be used with Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst).
 
 #### Main Text Figures: 
 1. [Figure 1](/data_exploration/figure/method1.ipynb) : Desert Setup and data description
@@ -36,7 +48,7 @@ distance
 
 
 
-## Setup Environment
+## [Setup Environment](#setupheading)
 
 Install <a href = "https://docs.python-guide.org/dev/virtualenvs/"> Virtualenv </a>: ```pip install virtualenv```<br/>
 
@@ -44,18 +56,13 @@ Install Anaconda from <a href = "https://docs.anaconda.com/anaconda/install/linu
 
 
 
-1. Create a Conda Environment:  
-
-   ```bash
-   conda create -n FlyDataAnalysis python=3.6  
-   ```
-2. Create the virtualenv:
+1. Create the virtualenv:
 
     ```
-   virtualenv -p /usr/bin/python3.6 dataEnv  
+   virtualenv -p /usr/bin/python3.8 <env-name>  
    ```
   
-3. Install Packages:
+2. Install Packages:
 
    ```
    pip install pandas
@@ -63,26 +70,10 @@ Install Anaconda from <a href = "https://docs.anaconda.com/anaconda/install/linu
    pip install numpy
    pip install matplotlib
    pip install figurefirst
+   pip install seaborn
+   pip instal scikit-learn
+   pip install h5py
    pip install tables
-   conda install --channel conda-forge cartopy  
+   python -m pip install statsmodels
    ``` 
-
-4. To Install Jupyter Dark Theme (optional - better not to):
-
-   ```bash
-   conda install -c conda-forge jupyterthemes 
-   ```
-
-### Bash_Aliases Setup
-```bash
-alias venv="source dataEnv/bin/activate"
-alias denv="deactivate"
-alias condaenv="conda activate FlyDataAnalysis"
-alias dconda="conda deactivate"
-alias jread="jupyter notebook"
-alias rosenv="source rosenv/bin/activate"
-alias start="venv && condaenv"
-alias stop="denv && dconda"
-```
-
 
