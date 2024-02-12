@@ -50,10 +50,20 @@ distance
 
 ## [Setup Environment](#setupheading)
 
+### Folder Structure
+```
+├── data_exploration             # Contains all the analysis scripts
+   ├── bag2h5.py                 # script for changing rosbag file to pandas dataframe
+   ├── dataInterpolation.ipynb   # interpolation to match odor sensor sampling rate
+   ├── odor_statitics_lib.py
+   ├── figure                    # all script for generating figure
+      └── supplemental           # contains scripts to generate supplemental figures
+   └── demo                      # some analysis demo scripts
+├── dataFileDescription.md       # readme for datafiles submitted in Data Dryad
+└── README.md
+```
+
 Install <a href = "https://docs.python-guide.org/dev/virtualenvs/"> Virtualenv </a>: ```pip install virtualenv```<br/>
-
-Install Anaconda from <a href = "https://docs.anaconda.com/anaconda/install/linux/">here. </a>
-
 
 
 1. Create the virtualenv:
