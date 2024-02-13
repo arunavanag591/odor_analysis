@@ -19,7 +19,7 @@ other than these please check the section [Setup Section](#setup-environment) fo
 
 ## Figures
 
-Data will be available in data dryad to run the results in the paper. Description data files are [here](dataFileDescription.md). Below are interactive notebooks, which can be used with Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst).
+Data will be available in data dryad to run the results in the paper. Description of data files [here](dataFileDescription.md). Below are interactive notebooks, which can be used with Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst).
 
 #### Main Text Figures: 
 1. [Figure 1](/data_exploration/figure/method1.ipynb) : Desert Setup and data description
