@@ -19,7 +19,7 @@ other than these please check the section [Setup Section](#setup-environment) fo
 
 ## Figures
 
-Data will be available in data dryad to run the results in the paper. Below are interactive notebooks, which can be used with Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst).
+Data will be available in data dryad to run the results in the paper. Description data files are [here](dataFileDescription.md). Below are interactive notebooks, which can be used with Jupyter Notebook and run using python 3.8 and inskcape to generate the figures and results. These figures were generated using [figurefirst](https://github.com/FlyRanch/figurefirst).
 
 #### Main Text Figures: 
 1. [Figure 1](/data_exploration/figure/method1.ipynb) : Desert Setup and data description
@@ -29,8 +29,7 @@ Data will be available in data dryad to run the results in the paper. Below are 
 5. [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb) : Mean Meta odor statistics vs Distance from source 
 6. [Figure 6](/data_exploration/figure/figureClustering.ipynb) : Heirarchical clustering - relationship between whiff statistcs
 7. [Figure 7](/data_exploration/figure/klmfigure.ipynb) : Integrating whiff statistics with relative motion in a Kalman smoother 
-8. [Figure 8](/data_exploration/figure/lowpassfilter.ipynb) : Low pass filtering odor signal degrades correlations between whiff statistics and source
-distance
+8. [Figure 8](/data_exploration/figure/lowpassfilter.ipynb) : Low pass filtering odor signal degrades correlations between whiff statistics and source distance
 
 
 #### Supplemental Figure
