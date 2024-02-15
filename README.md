@@ -1,6 +1,11 @@
 # Odor Analysis
 This repository consist of the data analysis done for Odor Tracking experiment. 
 
+
+## Abstract
+Odor plumes in turbulent environments are intermittent and sparse. Lab-scaled experiments suggest that information about the source distance may be encoded in odor signal statistics, yet it is unclear whether useful and continuous distance estimates can be made under real-world flow conditions. Here we analyze odor signals from outdoor experiments with a sensor moving across large spatial scales in desert and forest environments to show that odor signal statistics can yield useful estimates of distance. We show that achieving accurate estimates of distance requires integrating statistics from 5-10 seconds, with a high temporal encoding of the olfactory signal of at least 20 Hz. By combining distance estimates from a linear model with wind-relative motion dynamics, we achieved source distance estimates in a 60x60 m$^2$ search area with median errors of 3-8 meters, a distance at which point odor sources are often within visual range for animals such as mosquitoes. 
+
+
 Preprint: ["Odor source location can be predicted from a time-history of odor statistics for a large-scale outdoor plume"](https://www.biorxiv.org/content/10.1101/2023.07.20.549973v1)
 
 ## Dependencies
