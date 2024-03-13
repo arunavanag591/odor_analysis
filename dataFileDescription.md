@@ -11,31 +11,37 @@ This contains all datasets involved in the analysis of the preprint as available
 Download the data from Data dryad. The `data` folder along with `figure` folder, can be placed in the home folder under `~/odor_anaylsis/` .
 
 The datasets can be divided into:
-1. **Interpolated Sensor and stationery wind sensor data data [A]**: These datasets include data from mobile sensor stack that contains imu, gps data and odor sensor and data from stationery wind sensors that has ambient wind velocity, direction. The interpolation is done with respect to the odor sensor's sampling speed. 
+1. **Interpolated Sensor and stationery wind sensor data data **: These datasets include data from mobile sensor stack that contains imu, gps data and odor sensor and data from stationery wind sensors that has ambient wind velocity, direction. The interpolation is done with respect to the odor sensor's sampling speed. 
 
-2. **Derived dataframes [B]**: For different analysis example whiff statistics calculation, or lookback time analysis dataframes have been derived for easy to use plug and play experience.
+2. **Derived dataframes**: For different analysis example whiff statistics calculation, or lookback time analysis dataframes have been derived for easy to use plug and play experience.
 
-Below are the file and folder descriptions:
+### Folder Structure
+```
+├── data                       # Contains mobile sensor data from desert and forest
+├── derived_data
+   ├── KF                      # contains datasets for kalman filter analysis 
+   ├── stationery_wind_data    # contains ambient wind sensor data from desert and forest
+   ├── wind_lag_analysis       # contains data for wind lag analysis 
+    
+```
 
-- `aic_filtered_model_params.h5` :**[B]** Contains coefficients from the statsmodel of distance correlated aic filtered whiff statistics for all three wind scenarios. Run the script [Figure S9](/data_exploration/figure/Supplemental/windAicParamsAnalysis.ipynb). 
-- `DesertWind` :**[A]** Folder containing data from the stationery wind sensor measuring ambient wind.
-- `ForestMASigned.h5` :**[A]** Contains interpolated clean sensor data and signed distance axis for general Whittel Forest data analysis.
-- `ForestStatsTime_std.h5` :**[B]** Contains derived lookback whiff statistics for forest.
-- `KF`:**[B]** Contains all the datasets required for the kalman filter analysis as in script [Figure 7](/data_exploration/figure/klmfigure.ipynb) and [Figure S10](/data_exploration/figure/Supplemental/klmsupplemental.ipynb). 
-- `LookbackTimeAnalysis`:**[B]** Folder contains dataset used in the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb)  to analyse the effect of lookback window on r-squared when correlated with distance.
-- `lowpassfilter`:**[B]** Contains dataframes containing odor signal passed throw 2nd order low-pass-filter and can be used with the script 8. [Figure 8](/data_exploration/figure/lowpassfilter.ipynb). 
-- `lt_whiff_statistics.h5`:**[B]** Contains all the 25 whiff statistics calculated across the different distance from source over a look back time of 10 seconds. Run the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb), in section `Bootstrapped R2` and `Boootstrapped R2 and AIC for filtered parameters` to see the results. 
-- `methodfigure1`:**[A,B]** Contains all the datasets and images required to reproduce the experimental setup in Black Rock Desert, in the script [Figure 1](/data_exploration/figure/method1.ipynb).
-- `methodfigure2`:**[A,B]** Contains all the datasets and images required to reproduce the experimental setup in Whittel Forest, in the script [Figure 2](/data_exploration/figure/method2.ipynb).
-1. `NotWindy.h5` :**[A]** Contains low resolution interpolated clean sensor data for wind speed `< 3m/s` for desert. 
-1. `NotWindyMASigned.h5`:**[A]** Contains high resolution interpolated clean sensor data for wind speed `< 3m/s` for desert. 
-1. `NotWindyStatsTime_std.h5`:**[B]** Contains derived lookback time whiff statistics for wind speed `< 3m/s` for desert.
-1. `R2_AIC`: Folder contains r-squared and delta aic value when bootstrapped. Run the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb) to see the results.
-1. `windLagAnalysis` :**[B]** Folder containing all the files required to analysis for wind 
-1. `WindyMASigned.h5`:**[A]** Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
-1. `WindyStatsTime_std.h5`:**[B]** Contains derived lookback time whiff statistics for wind speed `> 3m/s` for desert.
+Below are the file descriptions under respective folders:
 
-
+1. **data**
+    - `ForestMASigned.h5` : Contains interpolated sensor data and signed distance axis for general Whittel Forest data analysis.
+    - `NotWindyLR.h5` : Low resolution interpolated sensor data for wind speed `< 3m/s` for desert. 
+    - `NotWindyMASigned.h5`: Contains high resolution interpolated clean sensor data for wind speed `< 3m/s` for desert. 
+    - `WindyMASigned.h5`: Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+2. **derived_data**
+    - `NotWindyStatsTime_std.h5`: Contains derived lookback time whiff statistics for wind speed `< 3m/s` for desert.
+    - `WindyStatsTime_std.h5`: Contains derived lookback time whiff statistics for wind speed `> 3m/s` for desert.
+    - `ForestStatsTime_std.h5` : Contains derived lookback whiff statistics for forest.
+    - `1hz.h5, 10hz.h5, 60hz.h5` : low pass filtered odor signal passed through 2nd order butterworth-filter and can be used with the script 8. [Figure 8](/data_exploration/figure/lowpassfilter.ipynb). 
+    - `LpfForestFiltered.h5, LpfHWSFiltered.h5, LpfLWSFiltered.h5` :  datasets containing effect on R-squared value when odor signal is low pass filtered. Use with [Figure 8](/data_exploration/figure/lowpassfilter.ipynb). 
+    - `HWSLTall.h5, LWSLTall.h5, ForestLTall.h5, R2LtTime.h5` :  datasets used in the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb)  to analyse the effect of lookback window on r-squared when correlated with distance.
+    - `aic_filtered_model_params.h5` : Contains coefficients from the statsmodel of distance correlated aic filtered whiff statistics for all three wind scenarios. Run the script [Figure S9](/data_exploration/figure/Supplemental/windAicParamsAnalysis.ipynb). 
+    - `lt_whiff_statistics.h5, All_AICDeltaTab.h5, all_Rsquared.h5, AllRsquaredAicCombinations.h5, `: Contains all the 25 whiff statistics calculated across the different distance from source over a look back time of 10 seconds. Run the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb), in section `Bootstrapped R2` and `Boootstrapped R2 and AIC for filtered parameters` to see the results. 
+   
 
 
 ## Data Fields
