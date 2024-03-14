@@ -43,6 +43,30 @@ Below are the file descriptions under respective folders:
     - `lt_whiff_statistics.h5, All_AICDeltaTab.h5, all_Rsquared.h5, AllRsquaredAicCombinations.h5, `: Contains all the 25 whiff statistics calculated across the different distance from source over a look back time of 10 seconds. Run the script [Figure 5](/data_exploration/figure/figureAicR2layout.ipynb), in section `Bootstrapped R2` and `Boootstrapped R2 and AIC for filtered parameters` to see the results. 
    
 
+### Figures
+Figure folder is available for download at DataDryad. The following are the files that can be found in the Figure folder, which can be seen in the [paper](https://www.biorxiv.org/content/10.1101/2023.07.20.549973v1):
+
+ - `method1.svg` : (Figure1) Contains interpolated sensor data and signed distance axis for general Whittel Forest data analysis.
+ - `method2.svg` : (Figure2) Low resolution interpolated sensor data for wind speed `< 3m/s` for desert. 
+ - `fig3_revised.svg` : (Figure3) Contains high resolution interpolated clean sensor data for wind speed `< 3m/s` for desert. 
+ - `fig4.svg` : (Figure4) Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `r2AicStatPlot.svg` : (Figure5) Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `clustering.svg` : (Figure6) Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `fig7.svg` : (Figure7) Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `lpf.svg` : (Figure8) Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `verticalMovement.svg` : Figure S1: Contains high resolution interpolated sensor data for wind speed `> 3m/s` for desert. 
+ - `motionanalysis.svg` : Figure S2: Motion analysis showing agent's movements similar to casting motions.
+ - `normalityAnalysis.svg` : Figure S3: Comprehensive residual analysis for model validation
+ - `windLagAnalysis.svg` :Figure S4: Wind characteristics from our LWS, HWS and Forest scenarios span a
+representative range of near surface wind characteristics from a larger dataset.
+ - `time_spent.svg` : Figure S5: Time spent - vs number of encounters
+ - `individualDatasetWhiffStat.svg` : Figure S6: Time spent - vs number of encounters
+ - `mc_wsd.svg` : Figure S7: Time spent - vs number of encounters
+ - `windAicParams.svg` : Figure S9: AIC filtered coefficiecnts across various wind scenarios
+ - `klmsupplmental.svg` : Figure S10: Kalman smoothed estimates of the distance to the odor source zoomed
+ 
+
+
 
 ## Data Fields
 ### Interpolated Sensor and stationery ambient sensor data
