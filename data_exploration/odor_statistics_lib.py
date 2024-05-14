@@ -33,14 +33,11 @@ def wrapped_angular_diff(a, b):
   return np.arctan2(np.sin(a-b), np.cos(a-b))
 
 def get_index_simulated(df):
-  
   idx = []
   df.odorsim = df.odorsim*10
   for i in range(len(df.odorsim)):
       if (df.odorsim[i]>1):
           idx.append(df.index[i])
-
-
   index = []
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
       index.append((list((map(itemgetter(1), g)))))
@@ -60,11 +57,10 @@ def get_index_filtered(df):
 
   return index
 
-def get_index(df):
-  
+def get_index(df, thres):
   idx = []
   for i in range(len(df.odor)):
-      if (df.odor[i]>4.5):
+      if (df.odor[i]>thres):
           idx.append(df.index[i])
   index = []
   for k, g in groupby(enumerate(idx),lambda ix : ix[0] - ix[1]):
