@@ -1,3 +1,6 @@
+
+[![DOI](https://zenodo.org/badge/294812731.svg)](https://zenodo.org/doi/10.5281/zenodo.11212243)
+
 # Odor Analysis
 This repository consist of the data analysis done for Odor Tracking experiment. 
 
