@@ -1,8 +1,7 @@
 # Odor Analysis
 This repository consist of the data analysis done for Odor Tracking experiment. 
 
-Paper: ["Odor source location can be predicted from a time-history of odor statistics for a large-scale outdoor plume"]([https://www.biorxiv.org/content/10.1101/2023.07.20.549973v1](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2024.0169))
-
+Paper: ["Odor source location can be predicted from a time-history of odor statistics for a large-scale outdoor plume"](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2024.0169)
 
 
 ## Figures
